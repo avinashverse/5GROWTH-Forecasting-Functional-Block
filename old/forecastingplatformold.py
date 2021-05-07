@@ -1,13 +1,12 @@
 from flask import Flask, make_response, request
 from flask_restplus import Resource, Api
 
-from threading import Thread
 
 import uuid
 from multiprocessing import Event, Manager, Queue
 from multiprocessing import Process
 from time import sleep
-from tools.Classes import ForecastingJob, Task
+from tools.Classes import ForecastingJob
 import numpy as np
 import time
 #######
@@ -29,6 +28,8 @@ from prometheus_client.metrics_core import GaugeMetricFamily
 #######
 
 PORT = 8888
+manager = None
+#active_jobs = None
 active_jobs = {}
 POLLING = 2
 data = {}  # Map to save queue for each peer ip
@@ -51,22 +52,21 @@ class SummMessages(object):
 
     def add(self, object):
         #job = object.get("job")
-        print(object)
-        del object['job']
+        del object["job"]
         for key, value in object.items():
             if key in self.dict_sum.keys():
                 self.dict_sum[key] += value
                 self.dict_number[key] += 1
             else:
-                self.dict_sum[key]= value
-                self.dict_number[key] = 1
+                self.dict_sum[key].update(value)
+                self.dict_number[key].update(1)
 
     def get_result(self):
         dict_result = {}
         for parameter, value in self.dict_sum.items():
             number = self.dict_number[parameter]
             result = round(value / number, 1)
-            dict_result[parameter] = result
+            dict_result[parameter].update(result)
         # self.dict_sum.clear()
         # self.dict_number.clear()
         return dict_result
@@ -85,16 +85,16 @@ class CustomCollector(object):
         if found_key == "":
             return None
 
-        element = data[found_key]
-        print(element)
+        queue = data[found_key]
         msgs = SummMessages()
-        #while not queue.empty():
-        msgs.add(element)
+        while not queue.empty():
+            msgs.add(queue.get())
+
         result = msgs.get_result()
         metrics = []
         for parameter, value in result.items():
-            gmf = GaugeMetricFamily(parameter, "avg", labels='avg')
-            gmf.add_metric([parameter], value)
+            gmf = GaugeMetricFamily(parameter, "avg")
+            gmf.add_metric(value)
             metrics.append(gmf)
         for metric in metrics:
             yield metric
@@ -102,17 +102,26 @@ class CustomCollector(object):
     def set_parameters(self, r):
         self.id = r
 
-'''
-                gmf = GaugeMetricFamily(parameter, parameter, labels=['host'])
-            for value in values:
-                gmf.add_metric([value['host']], value['value'])
-            metrics.append(gmf)
-        for metric in metrics:
-            yield metric
 
-'''
 cc = CustomCollector()
 REGISTRY.register(cc)
+
+
+@restApi.route('/adddata/<string:value>/<string:job>')
+@restApi.response(200, 'Success')
+@restApi.response(404, 'not found')
+class _ForecastingAdd(Resource):
+    @restApi.doc(description="handling new forecasting requests")
+    def put(self, value, job):
+        global active_jobs
+        #print(active_processes)
+        f = active_processes[str(job)].get('job')
+        a1 = np.array([[value]])
+        f.addData(a1)
+        print(f.data)
+        print(str(f.getForecastingValue()))
+        f.setForecasting(True)
+        return "ok"
 
 
 @restApi.route('/start/<string:mon_id>/<string:data_type>')
@@ -127,29 +136,12 @@ class _ForecastingStart(Resource):
         #req_id = uuid.uuid1()
         req_id = "b4338be3-9ec3-11eb-9558-dc7196d747fd"
         model = "LSTM"
+        kill_event = Event()
         fj = ForecastingJob(id, mon_id, data_type, model)
-        task = Task(str(req_id), mon_id, 0, fj, data, POLLING)
-        t = Thread(target=task.run, args=())
-        t.start()
-        active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'task': task}
-        return str(req_id)
-
-
-@restApi.route('/adddata/<string:value>/<string:job>')
-@restApi.response(200, 'Success')
-@restApi.response(404, 'not found')
-class _ForecastingAdd(Resource):
-    @restApi.doc(description="handling new forecasting requests")
-    def put(self, value, job):
-        global active_jobs
+        process = newProcess(kill_event, str(req_id), mon_id, data_type, model, 0, fj, data)
+        active_processes[str(req_id)] = {'kill_event': kill_event, 'process': process, 'job': fj}
         #print(active_processes)
-        f = active_jobs[str(job)].get('job')
-        a1 = np.array([[value]])
-        f.addData(a1)
-        print(f.data)
-        print(str(f.getForecastingValue()))
-        f.setForecasting(True)
-        return "ok"
+        return str(req_id)
 
 
 @restApi.route('/control')
@@ -161,7 +153,7 @@ class _ForecastingCheck(Resource):
         global active_jobs
         global data
         print("processes")
-        print(active_jobs)
+        print(active_processes)
         print("data")
         print(data)
 
@@ -176,18 +168,78 @@ class _ForecastingStop(Resource):
     def delete(self, job_id):
         global active_jobs
         print(f'job_id: {job_id}')
-        if job_id in active_jobs.keys():
-            element = active_jobs[job_id]
-            task = element.get('task')
-            thr = element.get('task')
-            task.terminate()
-            thr.join()
-            active_jobs.pop(job_id)
-            print(active_jobs)
+        if job_id in active_processes.keys():
+            element = active_processes[job_id]
+            kill_event = element.get('kill_event')
+            process = element.get('process')
+            if process.is_alive():
+                kill_event.set()
+                process.join()
+            active_processes.pop(job_id)
+            print(active_processes)
             return 'Forecasting job '+job_id+ ' Successfully stopped'
 
         else:
             return 'Forecasting job not found', 404
+
+
+def newProcess(kill_event, id, mon_id, data_type, model, period, fj, dataset):
+    process = Process(target=run, args=(kill_event, id, mon_id, period, fj, dataset))
+    process.daemon = True
+    process.start()
+    return process
+
+
+def run(kill_event, fid, mon_id, period, fj, queeueData):
+    while not kill_event.is_set():
+        if period == 1:
+            '''
+            try:
+                msg = queue.get()
+                myid = msg.get('id')
+                command = msg.get('command')
+                reply = spo.run_command(flag, command)
+                my_reply_dictionary[myid] = reply
+            except Exception as e:
+                print spo.name + '\'s configuration process stopped by exception: ' + str(e) + " ------> RESTARTING"
+                spo.kill_tcl(flag)
+                kill_child_processes()
+                continue
+            '''
+            #print(fj.str())
+
+            value = fj.getForecastingValue()
+            return_data = {
+                "job": fid,
+                mon_id: value
+            }
+            return_data_str = json.dumps(return_data)
+            json_obj2 = json.loads(return_data_str)
+            if json_obj2['job'] not in queeueData.keys():
+                queeueData[fid] = Queue()
+            queeueData[fid].put(json_obj2)
+            sleep(POLLING)
+        else:
+            print("loop")
+            if fj.isForecasting():
+                print("Forecasting")
+                print(fj.data)
+                value = fj.getForecastingValue()
+                return_data = {
+                    "job": fid,
+                    mon_id: value
+                }
+                return_data_str = json.dumps(return_data)
+                json_obj2 = json.loads(return_data_str)
+                if json_obj2['job'] not in queeueData.keys():
+                    queeueData[fid] = Queue()
+                queeueData[fid].put(json_obj2)
+                print(return_data_str)
+                fj.setForecasting(False)
+
+        sleep(POLLING)
+
+    print( f'configuration process stopped')
 
 
 @prometheusApi.route('/metrics/<string:job_id>')
@@ -197,21 +249,6 @@ class _PrometheusExporter(Resource):
     @prometheusApi.doc(description="handling Prometheus connections")
     def get(self, job_id):
         global data
-        global active_jobs
-        f = active_jobs[str(job_id)].get('job')
-        value = f.getForecastingValue()
-        print(str(value))
-        return_data = {
-            'job': job_id,
-            'mon_id': value
-        }
-        return_data_str = json.dumps(return_data)
-        json_obj2 = json.loads(return_data_str)
-        if job_id not in data.keys():
-            data[job_id] = {}
-        data[job_id] = json_obj2
-        print(return_data_str)
-
         id = job_id
         isExists = False
         for key in data.keys():
@@ -222,9 +259,11 @@ class _PrometheusExporter(Resource):
             return 'Forecasting job not found', 404
         cc.set_parameters(id)
         dataF = generate_latest(REGISTRY)
-        response = make_response(dataF , 200)
-        response.mimetype = "text/plain"
-        return response
+        #response = make_response(data , 200)
+        #response.mimetype = "text/plain"
+        #return response
+        print(dataF)
+        return dataF
 
 
 if __name__ == '__main__':

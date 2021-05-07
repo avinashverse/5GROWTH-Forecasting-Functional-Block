@@ -1,6 +1,8 @@
 from multiprocessing.process import current_process
 import psutil
 import numpy as np
+import json
+from time import sleep
 
 
 def kill_child_processes():
@@ -55,6 +57,60 @@ class ForecastingJob:
     def getForecastingValue(self):
         return np.sum(self.data.astype(np.float))/len(self.data)
 
+    def isForecasting(self):
+        return self.forecast
+
+    def setForecasting(self, val):
+        self.forecasting = val
+
+
+class Task:
+    def __init__(self, fid, mon_id, period, fj, dat, poll):
+        self._running = True
+        self.fid = fid
+        self.mon_id = mon_id
+        self.period = period
+        self.fj = fj
+        self.queeue = dat
+        self.poll = poll
+
+    def terminate(self):
+        self._running = False
+
+    def run(self):
+        while self._running:
+            if self.period == 1:
+                value = self.fj.getForecastingValue()
+                return_data = {
+                    "job": self.fid,
+                    self.mon_id: value
+                }
+                return_data_str = json.dumps(return_data)
+                json_obj2 = json.loads(return_data_str)
+                if json_obj2['job'] not in self.queeue.keys():
+                    self.queeue[self.fid] = {}
+                self.queeue[self.fid].put(json_obj2)
+            else:
+                print("loop ")
+                if self.fj.isForecasting():
+                    print("Forecasting")
+                    print(self.fj.data)
+                    value = self.fj.getForecastingValue()
+                    return_data = {
+                        "job": self.fid,
+                        self.mon_id: value
+                    }
+                    return_data_str = json.dumps(return_data)
+                    json_obj2 = json.loads(return_data_str)
+                    if json_obj2['job'] not in self.queeue.keys():
+                        self.queeue[self.fid] = {}
+                    self.queeue[self.fid].put(json_obj2)
+                    print(return_data_str)
+                    self.fj.setForecasting(False)
+
+            sleep(self.poll)
+
+        print(f'configuration process stopped')
 
 
 
