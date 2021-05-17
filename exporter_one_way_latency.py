@@ -204,6 +204,18 @@ def recv_forward_data(sock, laddr, raddr):
         print("forward data: " + str(json_obj2))
 
 
+'''
+            return_data = {
+                "probe": rxId,
+                "linklatency": latency[xID],
+                "jitter": jitter,
+                "packetLoss_percent": lossPercent[xID],
+                "packetLoss": loss[xID],
+                "totalTXPackets": totalCount[xID]
+            }
+'''
+
+
 def DSTprobe_server_thread(con, xID, laddr, raddr):
     global offset
     global quit
@@ -470,6 +482,17 @@ class CustomCollector(object):
             metrics.append(gmf)
         for metric in metrics:
             yield metric
+
+    '''
+                return_data = {
+                    "probe": rxId,
+                    "linklatency": latency[xID],
+                    "jitter": jitter,
+                    "packetLoss_percent": lossPercent[xID],
+                    "packetLoss": loss[xID],
+                    "totalTXPackets": totalCount[xID]
+                }
+    '''
 
     def set_parameters(self, r):
         self.ip = r["ip"]

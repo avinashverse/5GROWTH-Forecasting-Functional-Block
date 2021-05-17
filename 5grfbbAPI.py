@@ -1,19 +1,16 @@
 from flask import Flask, make_response, request, jsonify
 from flask_restplus import Resource, Api
 from threading import Thread
-
+import multiprocessing
 import uuid
-from multiprocessing import Event, Manager, Queue
-from multiprocessing import Process
-from time import sleep
 from tools.Classes import ForecastingJob, Task
-import numpy as np
-import time
+from tools.externalConnections import ExternalConnections
 #######
 import json
 
 from prometheus_client import REGISTRY, generate_latest
 from prometheus_client.metrics_core import GaugeMetricFamily
+import configparser
 
 #New API implemented
 #Start job
@@ -61,6 +58,7 @@ api = Api(app, version='1.0', title='5GrForecastingPlatform')
 #                      'Author: Andrea Sgambelluri')
 restApi = api.namespace('', description='input REST API for forecasting requests')
 prometheusApi = api.namespace('', description='REST API used by the Prometheus exporter')
+config = configparser.ConfigParser()
 
 
 class SummMessages(object):
@@ -70,22 +68,46 @@ class SummMessages(object):
 
     def add(self, object):
         #job = object.get("job")
-        print(object)
+        #print("insideAdd")
+        #print(object)
         del object['job']
+        name = object.get("name")
+        cpu = object.get("cpu")
+        host = name + '::' + cpu
+        del object['name']
+        del object['cpu']
+
         for key, value in object.items():
+            #self.dict_sum.update({key: {host: value}})
             if key in self.dict_sum.keys():
-                self.dict_sum[key] += value
-                self.dict_number[key] += 1
+                if host in self.dict_sum[key].keys():
+                    #print("host " + host + " present")
+                    self.dict_sum[key][host] += value
+                    self.dict_number[key][host] += 1
+                else:
+                    #print("host " + host + " not present")
+                    self.dict_sum[key].update({host: value})
+                    self.dict_number[key].update({host: 1})
             else:
-                self.dict_sum[key]= value
-                self.dict_number[key] = 1
+                #print("new key " + key + " in dict for " + host )
+                self.dict_sum.update({key: {host: value}})
+                self.dict_number.update({key: {host: 1}})
 
     def get_result(self):
         dict_result = {}
+        #print(len(self.dict_sum))
         for parameter, value in self.dict_sum.items():
-            number = self.dict_number[parameter]
-            result = round(value / number, 1)
-            dict_result[parameter] = result
+            for host, value2 in value.items():
+                number = self.dict_number[parameter][host]
+                result = round(value2 / number, 1)
+                if parameter in dict_result.keys():
+                    dict_result[parameter].append({
+                                        "host": host,
+                                        "value": result})
+                else:
+                    dict_result.update({parameter: [{
+                                        "host": host,
+                                        "value": result}]})
         # self.dict_sum.clear()
         # self.dict_number.clear()
         return dict_result
@@ -97,6 +119,8 @@ class CustomCollector(object):
 
     def collect(self):
         global data
+        #print("data")
+        #print(len(data))
         found_key = ""
         for key in data.keys():
             if self.id == key:
@@ -104,43 +128,33 @@ class CustomCollector(object):
         if found_key == "":
             return None
 
-        element = data[found_key]
-        print(element)
+        queue = data[found_key]
+        #print("queue")
+        #print(queue.qsize())
         msgs = SummMessages()
-        #while not queue.empty():
-        msgs.add(element)
+        while not queue.empty():
+            msgs.add(queue.get())
         result = msgs.get_result()
         metrics = []
-        for parameter, value in result.items():
-            gmf = GaugeMetricFamily(parameter, "avg", labels='avg')
-            gmf.add_metric([parameter], value)
-            metrics.append(gmf)
+        for parameter, values in result.items():
+            for value in values:
+                [instance, cpu] = str(value['host']).split('::', 1)
+                mode = 'idle'
+                label = [cpu, mode, instance]
+                gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance'])
+                gmf.add_metric(label, value['value'])
+                metrics.append(gmf)
+
         for metric in metrics:
             yield metric
 
     def set_parameters(self, r):
         self.id = r
 
-'''
-                gmf = GaugeMetricFamily(parameter, parameter, labels=['host'])
-            for value in values:
-                gmf.add_metric([value['host']], value['value'])
-            metrics.append(gmf)
-        for metric in metrics:
-            yield metric
 
-'''
 cc = CustomCollector()
 REGISTRY.register(cc)
 
-
-'''
-nsId.
-vnfdId
-Performance metric
-nsdId
-IL
-'''
 
 
 @restApi.route('/Forecasting')
@@ -163,16 +177,19 @@ class _Forecasting(Resource):
         nsdid = request_data['nsdId']
         il = request_data['IL']
         req_id = "b4338be3-9ec3-11eb-9558-dc7196d747fd"
-
+        reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'count': 2, 'nsdId': nsdid,
+                             'performanceMetric': metric, 'isActive': True, 'scraperJob': None,
+                             'kafkaTopic': None, 'prometheusJob0': None, 'model': None }
         #TODO
         #mapping algorithm
         model = "LSTM"
+        reqs[str(req_id)]['modeò'] = model
         #TODO
         #download the model form AI/ML platform
         #TODO
-        #create kafla topic
+        #create kafla topic and update reqs model
         # TODO
-        # create scraper job
+        # create scraper job and update the reqs model
 
         #print(f'mon_id: {mon_id} and data_type: {data_type}')
         #req_id = uuid.uuid1()
@@ -181,8 +198,6 @@ class _Forecasting(Resource):
         t = Thread(target=task.run, args=())
         t.start()
         active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'task': task}
-        reqs[str(req_id)] = {'model': model, 'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'nsdId': nsdid,
-                             'performanceMetric': metric, 'isActive' : True}
         # TODO
         # create Prometheus job pointing to the exporter
 
@@ -214,6 +229,12 @@ class _Forecasting1(Resource):
             #thr.join()
             active_jobs.pop(job_id)
             print(active_jobs)
+            # TODO
+            # delete Prometheus job pointing to the exporter
+            # TODO
+            # delete scraper job and update the reqs model
+            # TODO
+            # delete kafla topic and update reqs model
             if job_id in reqs.keys():
                 reqs[str(job_id)] = {'isActive': False}
             return 'Forecasting job '+job_id+ ' Successfully stopped', 200
@@ -237,7 +258,7 @@ class _Forecasting1(Resource):
 class _ForecastingAdd(Resource):
     def put(self, job_id, il):
         if str(job_id) in reqs.keys():
-            reqs[str(job_id)] = {'IL': il}
+            reqs[str(job_id)]['IL'] = il
             return 'Instantiation level updated', 200
         else:
             return 'Forecasting job not found', 404
@@ -280,39 +301,55 @@ class _ForecastingCheck(Resource):
 '''
 
 
-@prometheusApi.route('/metrics/<string:job_id>')
+@prometheusApi.route('/metrics/<string:job_id>/<string:vnfd_id>')
 @prometheusApi.response(200, 'Success')
 @prometheusApi.response(404, 'Not found')
 class _PrometheusExporter(Resource):
     @prometheusApi.doc(description="handling Prometheus connections")
-    def get(self, job_id):
+    def get(self, job_id, vnfd_id):
         global data
         global active_jobs
-        f = active_jobs[str(job_id)].get('job')
-        value = f.getForecastingValue()
-        print(str(value))
-        return_data = {
-            'job': job_id,
-            'mon_id': value
-        }
-        return_data_str = json.dumps(return_data)
-        json_obj2 = json.loads(return_data_str)
-        if job_id not in data.keys():
-            data[job_id] = {}
-        data[job_id] = json_obj2
-        print(return_data_str)
+        global reqs
 
         id = job_id
         isExists = False
-        for key in data.keys():
+        for key in active_jobs.keys():
             if key == id:
                 isExists = True
-                break
+                if reqs[str(job_id)].get('vnfdId') == vnfd_id:
+                    break
         if not isExists:
             return 'Forecasting job not found', 404
+        f = active_jobs[str(job_id)].get('job')
+        value = f.getForecastingValue()
+        #print(str(value))
+        metric = reqs[str(job_id)].get('performanceMetric')
+
+        il = reqs[str(job_id)].get('IL')
+        count = reqs[str(job_id)].get('count')
+        for i in range (0, il):
+            vnf_name = vnfd_id + '-' + str(i + 1)
+            for c in range(0, count):
+                cpu = str(c)
+                return_data = {
+                    'job': job_id,
+                    'name': vnf_name,
+                    'cpu': cpu,
+                    str(metric): value
+                }
+                return_data_str = json.dumps(return_data)
+                json_obj2 = json.loads(return_data_str)
+                if json_obj2['job'] not in data.keys():
+                    data[id] = multiprocessing.Queue()
+                #print(return_data_str)
+                data[id].put(json_obj2)
+                #print("push")
+                #print(data[id].qsize())
+
+
         cc.set_parameters(id)
         dataF = generate_latest(REGISTRY)
-        response = make_response(dataF , 200)
+        response = make_response(dataF, 200)
         response.mimetype = "text/plain"
         return response
 
@@ -323,5 +360,13 @@ if __name__ == '__main__':
     #manager = Manager()
     #active_jobs = manager.dict()
     #active_processes = manager.dict()
-    app.run(host='0.0.0.0', port=PORT)
+    config = configparser.ConfigParser()
+    config.read('config.conf')
+    ec = ExternalConnections('config.conf')
+    if 'local' in config:
+        ip = config['local']['localIP']
+        port = config['local']['localPort']
+    else:
+        port = PORT
+    app.run(host='0.0.0.0', port=port)
 
