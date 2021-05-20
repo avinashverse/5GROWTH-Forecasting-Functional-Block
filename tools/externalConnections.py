@@ -29,7 +29,7 @@ class ExternalConnections:
         if 'kafka' in config:
             self.kIp = config['kafka']['kafkaIP']
             self.kPort = config['kafka']['kafkaPort']
-            self.kUrl = config['kafka']['kafkaUrl']
+            #self.kUrl = config['kafka']['kafkaUrl']
         if 'local' in config:
             self.localIp = config['local']['localIP']
             self.localPort = config['local']['localPort']
@@ -42,7 +42,7 @@ class ExternalConnections:
         broker = self.kIp + ":" + self.kPort
         client = AdminClient({'bootstrap.servers' : broker})
         topic = ns_id + "_forecasting"
-        new_topics.append(NewTopic(topic, 1,1))
+        new_topics.append(NewTopic(topic, 1, 1))
         fs = client.create_topics(new_topics)
 
         # Wait for operation to finish.
@@ -119,7 +119,7 @@ class ExternalConnections:
 
     ### SCRAPER APIs ###
     #create scraper job
-    def startScraperJob(self, nsid, topic, vnfid, metric, expression, period):
+    def startScraperJob(self, nsid, topic, vnfdid, metric, expression, period):
             header = {'Accept': 'application/json',
                       'Content-Type': 'application/json'
                       }
@@ -137,7 +137,7 @@ class ExternalConnections:
 
             body = {
                 "nsid": nsid,
-                "vnfid": vnfid,
+                "vnfid": vnfdid,
                 "interval": period,
                 "performanceMetric": metric,
                 "kafkaTopic": topic,
