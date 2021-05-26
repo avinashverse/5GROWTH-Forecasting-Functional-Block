@@ -1,9 +1,9 @@
 from flask import Flask, make_response, request, jsonify
-from flask_restplus import Resource, Api
-from threading import Thread
+from flask_restplus import Resource, Api, fields
+from threading import Thread, Event
 import multiprocessing
 import uuid
-from tools.Classes import ForecastingJob, Task
+from tools.Classes import ForecastingJob
 from tools.externalConnections import ExternalConnections
 #######
 import json
@@ -13,17 +13,20 @@ from prometheus_client.metrics_core import GaugeMetricFamily
 import configparser
 import logging
 
+
+
+
 #New API implemented
 #Start job
 #POST http://127.0.0.1:8888/Forecasting/
 #input json
 '''
 { 
-        "nsId" : "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d",
-        "vnfdId" : "spr2",
-        "performanceMetric" :  "VcpuUsageMean",
-        "nsdId" : nsEVS_aiml,
-        "IL" : 1
+    "nsId" : "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d",
+    "vnfdId" : "spr2",
+    "performanceMetric" :  "VcpuUsageMean",
+    "nsdId" : nsEVS_aiml,
+    "IL" : 1
 }
 '''
 #Update IL
@@ -62,6 +65,16 @@ prometheusApi = api.namespace('', description='REST API used by the Prometheus e
 config = configparser.ConfigParser()
 logging.basicConfig(format='%(asctime)s :: %(message)s', level=logging.INFO, filename='5grfbb.log')
 ec = None
+
+model = restApi.model("Model",
+                        {
+                            "nsId": fields.String,
+                            "vnfdId": fields.String,
+                            "performanceMetric": fields.String,
+                            "nsdId": fields.String,
+                            "IL": fields.Integer,
+                        }
+                      )
 
 
 class SummMessages(object):
@@ -167,6 +180,7 @@ REGISTRY.register(cc)
 @restApi.response(410, 'Forecasting job not started')
 class _Forecasting(Resource):
     @restApi.doc(description="handling new forecasting requests")
+    @restApi.expect(model, envelope='resource')
     #put method receives data as payload in json format
     def post(self):
         global active_jobs
@@ -212,13 +226,12 @@ class _Forecasting(Resource):
         #                      expression = expression, period = 15)
         #logging.info('Forecasting API: scraper job '+rep+' created')
 
-        fj = ForecastingJob(id, metric, nsdid, model)
+        fj = ForecastingJob(id, nsdid, model)
         logging.debug('Forecasting API: forecasting job created '+fj.str())
-        task = Task(str(req_id), metric, 0, fj, data, POLLING)
-        logging.debug('Forecasting API: forecasting job in execution')
-        t = Thread(target=task.run, args=())
+        event = Event()
+        t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(id, nsid)))
         t.start()
-        active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'task': task}
+        active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event}
         # TODO
         # create Prometheus job pointing to the exporter
 
@@ -245,10 +258,10 @@ class _Forecasting1(Resource):
         logging.info('Forecasting API: request to stop forecasting job '+job_id+' received')
         if job_id in active_jobs.keys():
             element = active_jobs[job_id]
-            task = element.get('task')
-            #thr = element.get('task')
-            task.terminate()
-            #thr.join()
+            thread = element.get('thread')
+            event = element.get('kill_event')
+            event.set()
+            thread.join()
             active_jobs.pop(job_id)
             print(active_jobs)
             # TODO

@@ -1,8 +1,14 @@
 from multiprocessing.process import current_process
+from threading import Event
+from confluent_kafka import Consumer
+
+
 import psutil
 import numpy as np
 import json
 from time import sleep
+
+from confluent_kafka.error import ConsumeError
 
 
 def kill_child_processes():
@@ -23,10 +29,14 @@ def kill_child_processes():
 
 
 class ForecastingJob:
-    def __init__(self, id, mon_id, data_type, model, steps=None):
+    """
+    Make it a thread with a consumer with consumerid=id.
+    Each message mast be added with the add data function.
+    https://github.com/confluentinc/confluent-kafka-python
+    """
+    def __init__(self, id, data_type, model, steps=None):
         self.model = model
         self.job_id = id
-        self.mon_id = mon_id
         self.data_type = data_type
         self.forecast = False
         if steps is None:
@@ -36,9 +46,26 @@ class ForecastingJob:
         self.batch_size = 10
         self.data = np.arange(self.time_steps).reshape(self.time_steps, 1)
 
+    def run(self, event, consumer):
+        while not event.is_set():
+            try:
+                msg = consumer.poll(1.0)
+                if msg is None:
+                    continue
+                if msg.error():
+                    print("Consumer error: {}".format(msg.error()))
+                    continue
+                else:
+                    msg.value().decode('utf-8')
+                    # Insert here code to write with addData
+            except ConsumeError as e:
+                print("Consumer error: {}".format(str(e)))
+                # Should be commits manually handled?
+        consumer.close()
+
     def str(self):
         return '{ Forecasting job:\n\tmodel: ' + str(self.model) + '\n\tjob_id: ' + str(self.job_id) + \
-               '\n\tmon_id: ' + str(self.mon_id) + '\n\tdata_type: ' + str(self.data_type) + \
+               '\n\tdata_type: ' + str(self.data_type) + \
                '\n\ttime_steps: ' + str(self.time_steps) + '\n\tbatch_size: ' + str(self.batch_size) + '\n}'
 
     def setData(self, data):
@@ -62,55 +89,5 @@ class ForecastingJob:
 
     def setForecasting(self, val):
         self.forecasting = val
-
-
-class Task:
-    def __init__(self, fid, mon_id, period, fj, dat, poll):
-        self._running = True
-        self.fid = fid
-        self.mon_id = mon_id
-        self.period = period
-        self.fj = fj
-        self.queeue = dat
-        self.poll = poll
-
-    def terminate(self):
-        self._running = False
-
-    def run(self):
-        while self._running:
-            if self.period == 1:
-                value = self.fj.getForecastingValue()
-                return_data = {
-                    "job": self.fid,
-                    self.mon_id: value
-                }
-                return_data_str = json.dumps(return_data)
-                json_obj2 = json.loads(return_data_str)
-                if json_obj2['job'] not in self.queeue.keys():
-                    self.queeue[self.fid] = {}
-                self.queeue[self.fid].put(json_obj2)
-            else:
-                print("loop ")
-                if self.fj.isForecasting():
-                    print("Forecasting")
-                    print(self.fj.data)
-                    value = self.fj.getForecastingValue()
-                    return_data = {
-                        "job": self.fid,
-                        self.mon_id: value
-                    }
-                    return_data_str = json.dumps(return_data)
-                    json_obj2 = json.loads(return_data_str)
-                    if json_obj2['job'] not in self.queeue.keys():
-                        self.queeue[self.fid] = {}
-                    self.queeue[self.fid].put(json_obj2)
-                    print(return_data_str)
-                    self.fj.setForecasting(False)
-
-            sleep(self.poll)
-
-        print(f'configuration process stopped')
-
 
 

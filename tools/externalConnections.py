@@ -1,7 +1,9 @@
 import configparser
 from http.client import HTTPConnection
-from json import dumps, loads, load
-from confluent_kafka.admin import AdminClient, NewTopic
+from json import dumps, loads
+from confluent_kafka.admin import AdminClient
+from confluent_kafka import Consumer
+from confluent_kafka.cimpl import NewTopic
 
 
 class ExternalConnections:
@@ -74,6 +76,15 @@ class ExternalConnections:
             except Exception as e:
                 print("Failed to delete topic {}: {}".format(topic, e))
                 return 0
+
+    def createKafkaConsumer(self, id, ns_id):
+        consumer = Consumer({
+            'bootstrap.servers':  self.kIp + ":" + self.kPort,
+            'group.id': id,
+            'auto.offset.reset': 'earliest'
+        })
+        consumer.subscribe([ns_id + "_forecasting"])
+        return consumer
 
     def startPrometheusJob(self, name, vnfdId, nsId, period, job_id):
         # job_id = str(uuid4())
