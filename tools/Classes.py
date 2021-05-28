@@ -1,6 +1,6 @@
 from multiprocessing.process import current_process
 from threading import Event
-from confluent_kafka import Consumer
+from confluent_kafka import Consumer, KafkaError
 
 
 import psutil
@@ -45,10 +45,15 @@ class ForecastingJob:
             self.time_steps = steps
         self.batch_size = 10
         self.data = np.arange(self.time_steps).reshape(self.time_steps, 1)
+        #self.value = ""
 
     def run(self, event, consumer):
+        print("starting the consumer")
         while not event.is_set():
+            print("test")
             try:
+                print(consumer.list_topics())
+                '''
                 msg = consumer.poll(1.0)
                 if msg is None:
                     continue
@@ -56,8 +61,21 @@ class ForecastingJob:
                     print("Consumer error: {}".format(msg.error()))
                     continue
                 else:
-                    msg.value().decode('utf-8')
+                    value = msg.value().decode('utf-8')
+                    print(value)
                     # Insert here code to write with addData
+                '''
+                msg = consumer.poll(1.0)
+                if msg is None:
+                    continue
+                elif not msg.error():
+                    print('Received message: {0}'.format(msg.value()))
+                elif msg.error().code() == KafkaError._PARTITION_EOF:
+                    print('End of partition reached {0}/{1}'
+                          .format(msg.topic(), msg.partition()))
+                else:
+                    print('Error occured: {0}'.format(msg.error().str()))
+
             except ConsumeError as e:
                 print("Consumer error: {}".format(str(e)))
                 # Should be commits manually handled?

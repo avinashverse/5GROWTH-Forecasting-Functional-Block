@@ -77,13 +77,13 @@ class ExternalConnections:
                 print("Failed to delete topic {}: {}".format(topic, e))
                 return 0
 
-    def createKafkaConsumer(self, id, ns_id):
+    def createKafkaConsumer(self, id, topic):
         consumer = Consumer({
             'bootstrap.servers':  self.kIp + ":" + self.kPort,
             'group.id': id,
             'auto.offset.reset': 'earliest'
         })
-        consumer.subscribe([ns_id + "_forecasting"])
+        consumer.subscribe([topic])
         return consumer
 
     def startPrometheusJob(self, name, vnfdId, nsId, period, job_id):

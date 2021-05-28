@@ -202,7 +202,7 @@ class _Forecasting(Resource):
         req_id = "b4338be3-9ec3-11eb-9558-dc7196d747fd"
         reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'count': 2, 'nsdId': nsdid,
                              'performanceMetric': metric, 'isActive': True, 'scraperJob': None,
-                             'kafkaTopic': None, 'prometheusJob0': None, 'model': None }
+                             'kafkaTopic': None, 'prometheusJob': None, 'model': None }
         logging.debug('Forecasting API: DB updated with new job '+req_id)
 
         #TODO
@@ -215,9 +215,13 @@ class _Forecasting(Resource):
         logging.info('Forecasting API: model '+model+' downloaded from AIMLP')
 
         #create kafka topic and update reqs model
-        #topic = ec.createKafkaTopic(nsid)
-        #reqs[str(req_id)]['topic'] = topic
-        #logging.info('Forecasting API: topic '+topic+' created')
+        topic = ec.createKafkaTopic(nsid)
+        if topic != 0:
+
+            logging.info('Forecasting API: topic '+topic+' created')
+        else:
+            topic = nsid + "_forecasting"
+        reqs[str(req_id)]['kafkaTopic'] = topic
         # TODO
         # create scraper job and update the reqs model
         expression = metric+'{mode=\"idle\",nsId=\"'+nsid+'\",vnfdId=\"'+vnfdid+'\", forecasted=\"no\"'
@@ -226,10 +230,10 @@ class _Forecasting(Resource):
         #                      expression = expression, period = 15)
         #logging.info('Forecasting API: scraper job '+rep+' created')
 
-        fj = ForecastingJob(id, nsdid, model)
+        fj = ForecastingJob(req_id, nsdid, model)
         logging.debug('Forecasting API: forecasting job created '+fj.str())
         event = Event()
-        t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(id, nsid)))
+        t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(req_id, topic)))
         t.start()
         active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event}
         # TODO
@@ -272,6 +276,11 @@ class _Forecasting1(Resource):
             logging.info('Forecasting API: deleted scraper job')
             # TODO
             # delete kafla topic and update reqs model
+            topic = reqs[str(job_id)].get('kafkaTopic')
+            if topic is not None:
+                ec.deleteKafkaTopic(topic)
+            else:
+                ec.deleteKafkaTopic(reqs[str(job_id)].get('nsId')+"_forecasting")
             logging.info('Forecasting API: deleted kafka topic')
             if job_id in reqs.keys():
                 reqs[str(job_id)] = {'isActive': False}
@@ -289,7 +298,6 @@ class _Forecasting1(Resource):
         else:
             logging.info('Forecasting API: GET job info, job not found '+job_id)
             return 'Forecasting job not found', 404
-
 
 
 @restApi.route('/Forecasting/<string:job_id>/<string:il>')
