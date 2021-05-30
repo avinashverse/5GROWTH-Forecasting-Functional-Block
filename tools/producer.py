@@ -1,15 +1,76 @@
+# Copyright 2021 Scuola Superiore Sant'Anna www.santannapisa.it
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# python imports
+
 from confluent_kafka import Producer
 import sys
 kafkaIP = "10.30.2.118"
 kafkaPort = 9092
 
 topic = "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting"
+#topic = "Test"
 conf = {'bootstrap.servers': kafkaIP + ":" + str(kafkaPort)}
 
 p = Producer(**conf)
 
 # Producer configuration
-message = "test message"
+message = """
+[
+    {
+        "metric": {
+            "__name__": "node_cpu_seconds_total",
+            "cpu": "0",
+            "exporter": "node_exporter",
+            "instance": "spr2-1",
+            "job": "58d10e62-bdf5-44a9-9b35-0ba4ddd14b74",
+            "mode": "idle",
+            "nsId": "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d",
+            "vnfdId": "spr2",
+            "forecasted": "no"
+        },
+        "value": [
+            1618383722.708,
+            "100"
+        ],
+        "type_message": "metric"
+    }
+]
+"""
+'''
+    , 
+    {
+        "metric": {
+            "__name__": "node_cpu_seconds_total",
+            "cpu": "1",
+            "exporter": "node_exporter",
+            "instance": "spr2-1",
+            "job": "58d10e62-bdf5-44a9-9b35-0ba4ddd14b74",
+            "mode": "idle",
+            "nsId": "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d",
+            "vnfdId": "spr2",
+            "forecasted": "no"
+        },
+        "value": [
+            1618383722.708,
+            "9.05"
+        ],
+        "type_message": "metric"
+    }
+]
+"""
+'''
 
 
 def delivery_callback(err, msg):

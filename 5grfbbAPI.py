@@ -1,18 +1,33 @@
-from flask import Flask, make_response, request, jsonify
+# Copyright 2021 Scuola Superiore Sant'Anna www.santannapisa.it
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# python and projects imports
+from flask import Flask, make_response, request
 from flask_restplus import Resource, Api, fields
 from threading import Thread, Event
 import multiprocessing
 import uuid
-from tools.Classes import ForecastingJob
-from tools.externalConnections import ExternalConnections
-#######
 import json
-
 from prometheus_client import REGISTRY, generate_latest
 from prometheus_client.metrics_core import GaugeMetricFamily
 import configparser
 import logging
 
+#######
+
+from tools.Classes import ForecastingJob
+from tools.externalConnections import ExternalConnections
 
 
 
@@ -46,26 +61,25 @@ import logging
 
 #######
 
-PORT = 8888
-active_jobs = {}
-POLLING = 2
-data = {}  # Map to save queue for each peer ip
-#map_prometheus_request_time = {} #map of last Prometheus requests for each peer ip
-
-reqs = {}
+PORT = 8888             # default listening port
+active_jobs = {}        # dict to store the active jobs
+data = {}               # Map to save queue for each peer ip
+reqs = {}               # dict to store all the instantiated jobs
 
 # Flask and Flask-RestPlus configuration
 app = Flask(__name__)
 api = Api(app, version='1.0', title='5GrForecastingPlatform')
-#          description='API to enable the submission of requests to activate forecasting jobs. \n'
-#                      'Author: Andrea Sgambelluri')
 restApi = api.namespace('', description='input REST API for forecasting requests')
 prometheusApi = api.namespace('', description='REST API used by the Prometheus exporter')
 
+#module to load FFB configuration
 config = configparser.ConfigParser()
+#logging configuration
 logging.basicConfig(format='%(asctime)s :: %(message)s', level=logging.INFO, filename='5grfbb.log')
+
 ec = None
 
+#model definition for the API
 model = restApi.model("Model",
                         {
                             "nsId": fields.String,
@@ -77,21 +91,21 @@ model = restApi.model("Model",
                       )
 
 
+#auxiliary class used to preprocess data for the reply
 class SummMessages(object):
     def __init__(self):
         self.dict_sum = {}
         self.dict_number = {}
 
     def add(self, object):
-        #job = object.get("job")
-        #print("insideAdd")
-        #print(object)
         del object['job']
         name = object.get("name")
         cpu = object.get("cpu")
-        host = name + '::' + cpu
+        mode = object.get("mode")
+        host = name + '::' + cpu + '::' + mode
         del object['name']
         del object['cpu']
+        del object['mode']
 
         for key, value in object.items():
             #self.dict_sum.update({key: {host: value}})
@@ -129,6 +143,7 @@ class SummMessages(object):
         return dict_result
 
 
+#custom Prometheus exporter collector
 class CustomCollector(object):
     def __init__(self):
         self.id = ""
@@ -136,8 +151,6 @@ class CustomCollector(object):
     def collect(self):
         global data
         global logging
-        #print("data")
-        #print(len(data))
         found_key = ""
         for key in data.keys():
             if self.id == key:
@@ -146,8 +159,6 @@ class CustomCollector(object):
             return None
 
         queue = data[found_key]
-        #print("queue")
-        #print(queue.qsize())
         msgs = SummMessages()
         while not queue.empty():
             msgs.add(queue.get())
@@ -155,8 +166,7 @@ class CustomCollector(object):
         metrics = []
         for parameter, values in result.items():
             for value in values:
-                [instance, cpu] = str(value['host']).split('::', 1)
-                mode = 'idle'
+                [instance, cpu, mode] = str(value['host']).split('::', 2)
                 label = [cpu, mode, instance]
                 gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance'])
                 gmf.add_metric(label, value['value'])
@@ -214,7 +224,7 @@ class _Forecasting(Resource):
         #download the model form AI/ML platform
         logging.info('Forecasting API: model '+model+' downloaded from AIMLP')
 
-        #create kafka topic and update reqs model
+        #create kafka topic and update reqs dict
         topic = ec.createKafkaTopic(nsid)
         if topic != 0:
 
@@ -223,7 +233,7 @@ class _Forecasting(Resource):
             topic = nsid + "_forecasting"
         reqs[str(req_id)]['kafkaTopic'] = topic
         # TODO
-        # create scraper job and update the reqs model
+        # create scraper job and update the reqs dict
         expression = metric+'{mode=\"idle\",nsId=\"'+nsid+'\",vnfdId=\"'+vnfdid+'\", forecasted=\"no\"'
         print(expression)
         #rep = ec.startScraperJob(nsid = nsid, topic = topic, vnfdid = vnfdid, metric = metric,
@@ -274,8 +284,8 @@ class _Forecasting1(Resource):
             # TODO
             # delete scraper job and update the reqs model
             logging.info('Forecasting API: deleted scraper job')
-            # TODO
-            # delete kafla topic and update reqs model
+
+            # delete kafla topic and update reqs dict
             topic = reqs[str(job_id)].get('kafkaTopic')
             if topic is not None:
                 ec.deleteKafkaTopic(topic)
@@ -314,44 +324,6 @@ class _ForecastingAdd(Resource):
             return 'Forecasting job not found', 404
 
 
-'''
-
-
-@restApi.route('/Forecasting/adddata/<string:value>/<string:job>')
-@restApi.response(200, 'Success')
-@restApi.response(404, 'not found')
-class _ForecastingAdd(Resource):
-    @restApi.doc(description="handling new forecasting requests")
-    def put(self, value, job):
-        global active_jobs
-        #print(active_processes)
-        f = active_jobs[str(job)].get('job')
-        a1 = np.array([[value]])
-        f.addData(a1)
-        print(f.data)
-        print(str(f.getForecastingValue()))
-        f.setForecasting(True)
-        return "ok"
-
-
-@restApi.route('/Forecasting/control')
-@restApi.response(200, 'Success')
-@restApi.response(404, 'Forecasting job not started')
-class _ForecastingCheck(Resource):
-    @restApi.doc(description="handling new forecasting requests")
-    def get(self):
-        global active_jobs
-        global data
-        print("processes")
-        print(active_jobs)
-        print("data")
-        print(data)
-
-        return "ok"
-
-'''
-
-
 @prometheusApi.route('/metrics/<string:job_id>/<string:vnfd_id>')
 @prometheusApi.response(200, 'Success')
 @prometheusApi.response(404, 'Not found')
@@ -374,20 +346,21 @@ class _PrometheusExporter(Resource):
             logging.info('Prometeheus Exporter: job not found ' + job_id)
             return 'Forecasting job not found', 404
         f = active_jobs[str(job_id)].get('job')
-        value = f.getForecastingValue()
-        #print(str(value))
+        #get forecasting value
+        value = round(float(f.getForecastingValue()), 2)
         metric = reqs[str(job_id)].get('performanceMetric')
 
-        il = reqs[str(job_id)].get('IL')
-        count = reqs[str(job_id)].get('count')
-        for i in range (0, il):
-            vnf_name = vnfd_id + '-' + str(i + 1)
-            for c in range(0, count):
-                cpu = str(c)
+        #creating replicas for the average data
+        names = f.getNames()
+        for instance in names.keys():
+            for c in range(0, len(names[instance]['cpus'])):
+                cpu = str(names[instance]['cpus'][c])
+                mode = str(names[instance]['modes'][c])
                 return_data = {
                     'job': job_id,
-                    'name': vnf_name,
+                    'name': instance,
                     'cpu': cpu,
+                    'mode': mode,
                     str(metric): value
                 }
                 return_data_str = json.dumps(return_data)
@@ -399,10 +372,9 @@ class _PrometheusExporter(Resource):
                 #print("push")
                 #print(data[id].qsize())
 
-
         cc.set_parameters(id)
-        dataF = generate_latest(REGISTRY)
-        response = make_response(dataF, 200)
+        reply = generate_latest(REGISTRY)
+        response = make_response(reply, 200)
         response.mimetype = "text/plain"
         logging.info('Prometeheus Exporter: response= ' + str(response))
         return response

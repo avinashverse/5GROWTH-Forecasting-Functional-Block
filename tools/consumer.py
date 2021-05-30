@@ -1,10 +1,13 @@
 from confluent_kafka import Consumer, KafkaError, KafkaException
 
 import sys
+import json
+
 kafkaIP = "10.30.2.118"
 kafkaPort = 9092
 
-topic = "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting"
+#topic = "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting"
+topic = "Test"
 conf = {'bootstrap.servers': kafkaIP + ":" + str(kafkaPort),
         'group.id': 'mygroup',
         'auto.offset.reset': 'smallest'}
@@ -42,12 +45,20 @@ consumer.close()
 
 '''
 
+
+def dataParser(json_data):
+    parsed_json = (json.loads(json_data))
+    #print(json.dumps(parsed_json, indent=4, sort_keys=True))
+    loaded_json = json.loads(json_data)
+    for element in loaded_json:
+        print("%s: %s" % (element['metric']['instance'], element['value'][1]))
+
+
 running = True
 try:
     consumer.subscribe([topic])
 
     while running:
-        print("ciao")
         msg = consumer.poll(timeout=1.0)
         if msg is None: continue
 
@@ -59,7 +70,8 @@ try:
             elif msg.error():
                 raise KafkaException(msg.error())
         else:
-            print(msg)
+            #print(msg)
+            dataParser(msg.value())
 finally:
     # Close down consumer to commit final offsets.
     consumer.close()

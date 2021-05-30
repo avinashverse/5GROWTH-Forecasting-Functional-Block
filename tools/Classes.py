@@ -1,31 +1,23 @@
-from multiprocessing.process import current_process
-from threading import Event
-from confluent_kafka import Consumer, KafkaError
+# Copyright 2021 Scuola Superiore Sant'Anna www.santannapisa.it
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
+# python imports
 
-import psutil
+from confluent_kafka import KafkaError, KafkaException
 import numpy as np
 import json
-from time import sleep
-
 from confluent_kafka.error import ConsumeError
-
-
-def kill_child_processes():
-    """
-    This method should be invoked only within a function,
-    handled by a python process, in which you used
-    a tcl console object. Unluckily, wexpect library, which
-    is used to spawn tcl consoles, does not handle correctly
-    the creation of those object when called from another process.
-    This leads to have useless threads in background once killed.
-    For this reason, at the end of the function in your process,
-    this method should be invoked in order to kill those threads.
-    """
-    p = psutil.Process(current_process().pid)
-    children = p.children(recursive=True)
-    for child in children:
-        child.kill()
 
 
 class ForecastingJob:
@@ -39,42 +31,59 @@ class ForecastingJob:
         self.job_id = id
         self.data_type = data_type
         self.forecast = False
+        self.names = {}
         if steps is None:
             self.time_steps = 10
         else:
             self.time_steps = steps
         self.batch_size = 10
         self.data = np.arange(self.time_steps).reshape(self.time_steps, 1)
-        #self.value = ""
+
+
+    def dataParser(self, json_data):
+        loaded_json = json.loads(json_data)
+        names = {}
+        for element in loaded_json:
+            mtype = element['type_message']
+            if mtype == "metric":
+                instance = element['metric']['instance']
+                cpu = element['metric']['cpu']
+                mode = element['metric']['mode']
+                nsid = element['metric']['nsId']
+                vnfdif = element['metric']['vnfdId']
+                t = element['value'][0]
+                val = element['value'][1]
+                if instance not in names.keys():
+                    names[instance] = {}
+                    names[instance]['cpus']= []
+                    names[instance]['modes']= []
+                names[instance]['cpus'].append(cpu)
+                names[instance]['modes'].append(mode)
+                a1 = np.array([[round(float(val), 2)]])
+                self.addData(a1)
+        self.names = names
+
+    def getNames(self):
+        return self.names
 
     def run(self, event, consumer):
         print("starting the consumer")
         while not event.is_set():
-            print("test")
             try:
-                print(consumer.list_topics())
-                '''
                 msg = consumer.poll(1.0)
                 if msg is None:
                     continue
                 if msg.error():
-                    print("Consumer error: {}".format(msg.error()))
-                    continue
+                    if msg.error().code() == KafkaError._PARTITION_EOF:
+                        # End of partition event
+                        print('%% %s [%d] reached end at offset %d\n' %
+                                     (msg.topic(), msg.partition(), msg.offset()))
+                    elif msg.error():
+                        raise KafkaException(msg.error())
                 else:
-                    value = msg.value().decode('utf-8')
-                    print(value)
-                    # Insert here code to write with addData
-                '''
-                msg = consumer.poll(1.0)
-                if msg is None:
-                    continue
-                elif not msg.error():
-                    print('Received message: {0}'.format(msg.value()))
-                elif msg.error().code() == KafkaError._PARTITION_EOF:
-                    print('End of partition reached {0}/{1}'
-                          .format(msg.topic(), msg.partition()))
-                else:
-                    print('Error occured: {0}'.format(msg.error().str()))
+                    #no error -> message received
+                    print("new data received")
+                    self.dataParser(msg.value())
 
             except ConsumeError as e:
                 print("Consumer error: {}".format(str(e)))

@@ -1,0 +1,761 @@
+2021-05-20 23:06:46,662 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-20 23:07:22,946 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-20 23:07:22,946 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-20 23:08:41,112 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-20 23:08:45,280 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-20 23:08:45,280 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-20 23:08:45,288 :: 127.0.0.1 - - [20/May/2021 23:08:45] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-20 23:08:51,523 :: 127.0.0.1 - - [20/May/2021 23:08:51] "[37mGET /Forecasting HTTP/1.1[0m" 200 -
+2021-05-20 23:08:55,051 :: Forecasting API: GET job info, {'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'IL': 1, 'count': 2, 'nsdId': 'nsEVS_aiml', 'performanceMetric': 'VcpuUsageMean', 'isActive': True, 'scraperJob': None, 'kafkaTopic': None, 'prometheusJob0': None, 'model': 'LSTM'}
+2021-05-20 23:08:55,051 :: 127.0.0.1 - - [20/May/2021 23:08:55] "[37mGET /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-20 23:08:59,679 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-20 23:08:59,719 :: Exception on /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 [GET]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 386, in get
+    logging.info('Prometeheus Exporter: response= ' + response)
+TypeError: can only concatenate str (not "Response") to str
+2021-05-20 23:08:59,794 :: 127.0.0.1 - - [20/May/2021 23:08:59] "[35m[1mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 500 -
+2021-05-20 23:10:29,122 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-20 23:10:33,130 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-20 23:10:33,130 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-20 23:10:33,133 :: 127.0.0.1 - - [20/May/2021 23:10:33] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-20 23:10:36,299 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-20 23:10:36,320 :: Prometeheus Exporter: response= <Response 1275 bytes [200 OK]>
+2021-05-20 23:10:36,320 :: 127.0.0.1 - - [20/May/2021 23:10:36] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-20 23:10:41,429 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-20 23:10:41,429 :: Forecasting API: deleted Prometheus job
+2021-05-20 23:10:41,433 :: Forecasting API: deleted scraper job
+2021-05-20 23:10:41,433 :: Forecasting API: deleted kafka topic
+2021-05-20 23:10:41,433 :: 127.0.0.1 - - [20/May/2021 23:10:41] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-23 16:08:33,082 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-23 16:08:46,141 :: 127.0.0.1 - - [23/May/2021 16:08:46] "[37mGET / HTTP/1.1[0m" 200 -
+2021-05-23 16:08:46,248 :: 127.0.0.1 - - [23/May/2021 16:08:46] "[37mGET /swaggerui/droid-sans.css HTTP/1.1[0m" 200 -
+2021-05-23 16:08:46,394 :: 127.0.0.1 - - [23/May/2021 16:08:46] "[37mGET /swaggerui/swagger-ui.css HTTP/1.1[0m" 200 -
+2021-05-23 16:08:46,562 :: 127.0.0.1 - - [23/May/2021 16:08:46] "[37mGET /swaggerui/swagger-ui-standalone-preset.js HTTP/1.1[0m" 200 -
+2021-05-23 16:08:46,646 :: 127.0.0.1 - - [23/May/2021 16:08:46] "[37mGET /swaggerui/swagger-ui-bundle.js HTTP/1.1[0m" 200 -
+2021-05-23 16:08:47,047 :: 127.0.0.1 - - [23/May/2021 16:08:47] "[37mGET /swagger.json HTTP/1.1[0m" 200 -
+2021-05-23 16:08:47,061 :: 127.0.0.1 - - [23/May/2021 16:08:47] "[37mGET /swaggerui/favicon-32x32.png HTTP/1.1[0m" 200 -
+2021-05-23 16:10:40,808 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-23 16:10:43,984 :: 127.0.0.1 - - [23/May/2021 16:10:43] "[37mGET / HTTP/1.1[0m" 200 -
+2021-05-23 16:10:44,048 :: 127.0.0.1 - - [23/May/2021 16:10:44] "[37mGET /swagger.json HTTP/1.1[0m" 200 -
+2021-05-23 16:10:44,310 :: 127.0.0.1 - - [23/May/2021 16:10:44] "[37mGET /swaggerui/favicon-32x32.png HTTP/1.1[0m" 200 -
+2021-05-25 16:22:09,686 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-25 16:22:21,161 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-25 16:22:21,161 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-25 16:22:21,161 :: Exception on /Forecasting [POST]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 219, in post
+    t = Thread(target=task.run, args=(topic))
+NameError: name 'topic' is not defined
+2021-05-25 16:22:21,189 :: 127.0.0.1 - - [25/May/2021 16:22:21] "[35m[1mPOST /Forecasting HTTP/1.1[0m" 500 -
+2021-05-25 16:23:09,068 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-25 16:23:12,647 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-25 16:23:12,647 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-25 16:23:12,648 :: 127.0.0.1 - - [25/May/2021 16:23:12] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-25 16:23:26,230 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-25 16:23:26,230 :: Forecasting API: deleted Prometheus job
+2021-05-25 16:23:26,230 :: Forecasting API: deleted scraper job
+2021-05-25 16:23:26,230 :: Forecasting API: deleted kafka topic
+2021-05-25 16:23:26,231 :: 127.0.0.1 - - [25/May/2021 16:23:26] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-25 16:23:36,636 :: 127.0.0.1 - - [25/May/2021 16:23:36] "[37mGET /Forecasting HTTP/1.1[0m" 200 -
+2021-05-27 16:55:49,881 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-27 16:56:11,689 :: 127.0.0.1 - - [27/May/2021 16:56:11] "[33mGET /login HTTP/1.1[0m" 404 -
+2021-05-27 16:56:11,998 :: 127.0.0.1 - - [27/May/2021 16:56:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2021-05-27 16:56:56,389 :: 127.0.0.1 - - [27/May/2021 16:56:56] "[37mGET / HTTP/1.1[0m" 200 -
+2021-05-27 16:56:56,489 :: 127.0.0.1 - - [27/May/2021 16:56:56] "[36mGET /swaggerui/swagger-ui.css HTTP/1.1[0m" 304 -
+2021-05-27 16:56:56,640 :: 127.0.0.1 - - [27/May/2021 16:56:56] "[36mGET /swaggerui/droid-sans.css HTTP/1.1[0m" 304 -
+2021-05-27 16:56:56,784 :: 127.0.0.1 - - [27/May/2021 16:56:56] "[36mGET /swaggerui/swagger-ui-standalone-preset.js HTTP/1.1[0m" 304 -
+2021-05-27 16:56:56,865 :: 127.0.0.1 - - [27/May/2021 16:56:56] "[36mGET /swaggerui/swagger-ui-bundle.js HTTP/1.1[0m" 304 -
+2021-05-27 16:56:57,260 :: 127.0.0.1 - - [27/May/2021 16:56:57] "[37mGET /swagger.json HTTP/1.1[0m" 200 -
+2021-05-28 00:10:30,516 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:10:46,709 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:10:46,709 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:10:46,937 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 00:10:46,944 :: 127.0.0.1 - - [28/May/2021 00:10:46] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:18:06,728 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:18:06,728 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:18:06,868 :: Exception on /Forecasting [POST]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 220, in post
+    logging.info('Forecasting API: topic '+topic+' created')
+TypeError: can only concatenate str (not "int") to str
+2021-05-28 00:18:06,914 :: 127.0.0.1 - - [28/May/2021 00:18:06] "[35m[1mPOST /Forecasting HTTP/1.1[0m" 500 -
+2021-05-28 00:18:35,980 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:18:36,121 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:18:36,121 :: Forecasting API: deleted scraper job
+2021-05-28 00:18:36,121 :: Forecasting API: deleted kafka topic
+2021-05-28 00:18:36,121 :: 127.0.0.1 - - [28/May/2021 00:18:36] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 00:21:49,506 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:21:55,375 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:21:55,375 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:21:55,522 :: Exception on /Forecasting [POST]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 220, in post
+    logging.info('Forecasting API: topic '+topic+' created')
+TypeError: can only concatenate str (not "int") to str
+2021-05-28 00:21:55,529 :: 127.0.0.1 - - [28/May/2021 00:21:55] "[35m[1mPOST /Forecasting HTTP/1.1[0m" 500 -
+2021-05-28 00:22:08,166 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:22:08,166 :: 127.0.0.1 - - [28/May/2021 00:22:08] "[33mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 404 -
+2021-05-28 00:22:13,121 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:22:13,124 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:22:13,253 :: Exception on /Forecasting [POST]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 220, in post
+    logging.info('Forecasting API: topic '+topic+' created')
+TypeError: can only concatenate str (not "int") to str
+2021-05-28 00:22:13,253 :: 127.0.0.1 - - [28/May/2021 00:22:13] "[35m[1mPOST /Forecasting HTTP/1.1[0m" 500 -
+2021-05-28 00:23:42,437 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:23:45,468 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:23:45,468 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:23:45,595 :: 127.0.0.1 - - [28/May/2021 00:23:45] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:23:49,969 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:23:50,621 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:23:50,621 :: Forecasting API: deleted scraper job
+2021-05-28 00:23:50,625 :: Exception on /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd [DELETE]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 276, in delete
+    ec.deleteKafkaTopic(reqs[str(job_id)].get('kafkaTopic'))
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\tools\externalConnections.py", line 69, in deleteKafkaTopic
+    fs = client.delete_topics(del_topics)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\confluent_kafka\admin\__init__.py", line 362, in delete_topics
+    super(AdminClient, self).delete_topics(topics, f, **kwargs)
+ValueError: Expected list of topic strings, not NoneType
+2021-05-28 00:23:50,666 :: 127.0.0.1 - - [28/May/2021 00:23:50] "[35m[1mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 500 -
+2021-05-28 00:25:04,928 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:25:09,974 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:25:09,974 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:25:10,122 :: 127.0.0.1 - - [28/May/2021 00:25:10] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:25:13,637 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:25:14,157 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:25:14,157 :: Forecasting API: deleted scraper job
+2021-05-28 00:25:14,160 :: Exception on /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd [DELETE]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 278, in delete
+    ec.deleteKafkaTopic(reqs[str(job_id)].get('kafkaTopic'))
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\tools\externalConnections.py", line 69, in deleteKafkaTopic
+    fs = client.delete_topics(del_topics)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\confluent_kafka\admin\__init__.py", line 362, in delete_topics
+    super(AdminClient, self).delete_topics(topics, f, **kwargs)
+ValueError: Expected list of topic strings, not NoneType
+2021-05-28 00:25:14,184 :: 127.0.0.1 - - [28/May/2021 00:25:14] "[35m[1mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 500 -
+2021-05-28 00:28:17,541 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:28:21,758 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:28:21,758 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:28:21,887 :: 127.0.0.1 - - [28/May/2021 00:28:21] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:28:24,837 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:28:24,911 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:28:24,911 :: Forecasting API: deleted scraper job
+2021-05-28 00:28:25,048 :: Forecasting API: deleted kafka topic
+2021-05-28 00:28:25,048 :: 127.0.0.1 - - [28/May/2021 00:28:25] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 00:29:58,162 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:30:03,458 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:30:03,458 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:30:03,636 :: 127.0.0.1 - - [28/May/2021 00:30:03] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:30:07,474 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:30:07,672 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:30:07,672 :: Forecasting API: deleted scraper job
+2021-05-28 00:30:07,799 :: Forecasting API: deleted kafka topic
+2021-05-28 00:30:07,803 :: 127.0.0.1 - - [28/May/2021 00:30:07] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 00:33:33,309 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:33:39,199 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:33:39,199 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:33:39,404 :: 127.0.0.1 - - [28/May/2021 00:33:39] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:33:43,046 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:33:43,440 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:33:43,440 :: Forecasting API: deleted scraper job
+2021-05-28 00:33:43,576 :: Forecasting API: deleted kafka topic
+2021-05-28 00:33:43,576 :: 127.0.0.1 - - [28/May/2021 00:33:43] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 00:33:55,730 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:33:55,730 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:33:55,910 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 00:33:55,914 :: 127.0.0.1 - - [28/May/2021 00:33:55] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:37:07,671 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:37:07,703 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:37:07,703 :: Forecasting API: deleted scraper job
+2021-05-28 00:37:07,842 :: Forecasting API: deleted kafka topic
+2021-05-28 00:37:07,842 :: 127.0.0.1 - - [28/May/2021 00:37:07] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 00:37:11,842 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:37:16,768 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:37:16,768 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:37:16,952 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 00:37:16,953 :: 127.0.0.1 - - [28/May/2021 00:37:16] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:51:29,146 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 00:51:32,547 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:51:32,547 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:51:32,695 :: 127.0.0.1 - - [28/May/2021 00:51:32] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:51:40,814 :: Forecasting API: GET job info, {'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'IL': 1, 'count': 2, 'nsdId': 'nsEVS_aiml', 'performanceMetric': 'VcpuUsageMean', 'isActive': True, 'scraperJob': None, 'kafkaTopic': None, 'prometheusJob': None, 'model': 'LSTM', 'topic': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting'}
+2021-05-28 00:51:40,814 :: 127.0.0.1 - - [28/May/2021 00:51:40] "[37mGET /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 00:52:46,535 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 00:52:47,034 :: Forecasting API: deleted Prometheus job
+2021-05-28 00:52:47,034 :: Forecasting API: deleted scraper job
+2021-05-28 00:52:47,180 :: Forecasting API: deleted kafka topic
+2021-05-28 00:52:47,180 :: 127.0.0.1 - - [28/May/2021 00:52:47] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 00:52:50,790 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 00:52:50,790 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 00:52:50,974 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 00:52:50,978 :: 127.0.0.1 - - [28/May/2021 00:52:50] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 00:52:56,624 :: Forecasting API: GET job info, {'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'IL': 1, 'count': 2, 'nsdId': 'nsEVS_aiml', 'performanceMetric': 'VcpuUsageMean', 'isActive': True, 'scraperJob': None, 'kafkaTopic': None, 'prometheusJob': None, 'model': 'LSTM', 'topic': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting'}
+2021-05-28 00:52:56,624 :: 127.0.0.1 - - [28/May/2021 00:52:56] "[37mGET /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:04:12,124 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 01:04:16,794 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:04:16,794 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:04:16,943 :: 127.0.0.1 - - [28/May/2021 01:04:16] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:04:38,461 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 01:04:39,041 :: Forecasting API: deleted Prometheus job
+2021-05-28 01:04:39,041 :: Forecasting API: deleted scraper job
+2021-05-28 01:04:39,198 :: Forecasting API: deleted kafka topic
+2021-05-28 01:04:39,198 :: 127.0.0.1 - - [28/May/2021 01:04:39] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:05:04,453 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:05:04,453 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:05:04,644 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 01:05:04,648 :: 127.0.0.1 - - [28/May/2021 01:05:04] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:07:10,727 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 01:07:11,060 :: Forecasting API: deleted Prometheus job
+2021-05-28 01:07:11,060 :: Forecasting API: deleted scraper job
+2021-05-28 01:07:11,199 :: Forecasting API: deleted kafka topic
+2021-05-28 01:07:11,203 :: 127.0.0.1 - - [28/May/2021 01:07:11] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:07:23,777 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 01:07:29,463 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:07:29,463 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:07:29,664 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 01:07:29,668 :: 127.0.0.1 - - [28/May/2021 01:07:29] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:08:19,154 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 01:08:19,873 :: Forecasting API: deleted Prometheus job
+2021-05-28 01:08:19,873 :: Forecasting API: deleted scraper job
+2021-05-28 01:08:20,025 :: Forecasting API: deleted kafka topic
+2021-05-28 01:08:20,025 :: 127.0.0.1 - - [28/May/2021 01:08:20] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:08:23,976 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 01:08:29,843 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:08:29,843 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:08:30,025 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 01:08:30,033 :: 127.0.0.1 - - [28/May/2021 01:08:30] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:10:02,307 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 01:10:06,542 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:10:06,542 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:10:06,696 :: 127.0.0.1 - - [28/May/2021 01:10:06] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:10:10,805 :: Forecasting API: GET job info, {'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'IL': 1, 'count': 2, 'nsdId': 'nsEVS_aiml', 'performanceMetric': 'VcpuUsageMean', 'isActive': True, 'scraperJob': None, 'kafkaTopic': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting', 'prometheusJob': None, 'model': 'LSTM'}
+2021-05-28 01:10:10,805 :: Exception on /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd [GET]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 296, in get
+    print(active_jobs[str(job_id)].get('job').value)
+AttributeError: 'ForecastingJob' object has no attribute 'value'
+2021-05-28 01:10:10,813 :: 127.0.0.1 - - [28/May/2021 01:10:10] "[35m[1mGET /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 500 -
+2021-05-28 01:10:20,041 :: Forecasting API: GET job info, {'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'IL': 1, 'count': 2, 'nsdId': 'nsEVS_aiml', 'performanceMetric': 'VcpuUsageMean', 'isActive': True, 'scraperJob': None, 'kafkaTopic': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting', 'prometheusJob': None, 'model': 'LSTM'}
+2021-05-28 01:10:20,041 :: Exception on /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd [GET]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 296, in get
+    print(active_jobs[str(job_id)].get('job').value)
+AttributeError: 'ForecastingJob' object has no attribute 'value'
+2021-05-28 01:10:20,045 :: 127.0.0.1 - - [28/May/2021 01:10:20] "[35m[1mGET /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 500 -
+2021-05-28 01:10:42,816 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 01:10:47,726 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:10:47,726 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:10:47,871 :: 127.0.0.1 - - [28/May/2021 01:10:47] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:10:50,671 :: Forecasting API: GET job info, {'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'IL': 1, 'count': 2, 'nsdId': 'nsEVS_aiml', 'performanceMetric': 'VcpuUsageMean', 'isActive': True, 'scraperJob': None, 'kafkaTopic': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting', 'prometheusJob': None, 'model': 'LSTM'}
+2021-05-28 01:10:50,671 :: 127.0.0.1 - - [28/May/2021 01:10:50] "[37mGET /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:10:55,197 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 01:10:55,931 :: Forecasting API: deleted Prometheus job
+2021-05-28 01:10:55,931 :: Forecasting API: deleted scraper job
+2021-05-28 01:10:56,069 :: Forecasting API: deleted kafka topic
+2021-05-28 01:10:56,069 :: 127.0.0.1 - - [28/May/2021 01:10:56] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:11:02,283 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:11:02,283 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:11:02,446 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 01:11:02,450 :: 127.0.0.1 - - [28/May/2021 01:11:02] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:27:36,718 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 01:27:40,443 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:27:40,443 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:27:40,580 :: 127.0.0.1 - - [28/May/2021 01:27:40] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:27:43,647 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 01:27:44,634 :: Forecasting API: deleted Prometheus job
+2021-05-28 01:27:44,634 :: Forecasting API: deleted scraper job
+2021-05-28 01:27:44,780 :: Forecasting API: deleted kafka topic
+2021-05-28 01:27:44,780 :: 127.0.0.1 - - [28/May/2021 01:27:44] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:27:46,786 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:27:46,786 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:27:46,977 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 01:27:46,981 :: 127.0.0.1 - - [28/May/2021 01:27:46] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:29:41,492 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 01:29:43,884 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 01:29:43,884 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 01:29:44,028 :: 127.0.0.1 - - [28/May/2021 01:29:44] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 01:29:46,453 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 01:29:47,055 :: Forecasting API: deleted Prometheus job
+2021-05-28 01:29:47,055 :: Forecasting API: deleted scraper job
+2021-05-28 01:29:47,185 :: Forecasting API: deleted kafka topic
+2021-05-28 01:29:47,189 :: 127.0.0.1 - - [28/May/2021 01:29:47] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 01:30:57,819 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 01:30:57,819 :: 127.0.0.1 - - [28/May/2021 01:30:57] "[33mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 404 -
+2021-05-28 09:51:33,126 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 09:51:51,623 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 09:51:51,623 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 09:51:51,719 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 09:51:51,726 :: 127.0.0.1 - - [28/May/2021 09:51:51] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 10:03:09,224 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 10:03:13,758 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 10:03:13,758 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 10:03:13,793 :: 127.0.0.1 - - [28/May/2021 10:03:13] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 10:07:07,174 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 10:07:07,626 :: Forecasting API: deleted Prometheus job
+2021-05-28 10:07:07,627 :: Forecasting API: deleted scraper job
+2021-05-28 10:07:07,660 :: Forecasting API: deleted kafka topic
+2021-05-28 10:07:07,660 :: 127.0.0.1 - - [28/May/2021 10:07:07] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 10:07:16,331 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 10:07:16,332 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 10:07:16,388 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 10:07:16,393 :: 127.0.0.1 - - [28/May/2021 10:07:16] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 10:07:28,294 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-28 10:07:28,497 :: Forecasting API: deleted Prometheus job
+2021-05-28 10:07:28,498 :: Forecasting API: deleted scraper job
+2021-05-28 10:07:28,527 :: Forecasting API: deleted kafka topic
+2021-05-28 10:07:28,528 :: 127.0.0.1 - - [28/May/2021 10:07:28] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-28 10:14:34,751 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 10:14:34,751 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 10:14:34,937 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-28 10:14:34,942 :: 127.0.0.1 - - [28/May/2021 10:14:34] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-28 13:11:55,282 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-28 13:12:02,035 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-28 13:12:02,035 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-28 13:12:02,069 :: 127.0.0.1 - - [28/May/2021 13:12:02] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 00:47:39,940 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 00:48:53,423 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 00:48:53,423 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 00:48:53,592 :: 127.0.0.1 - - [30/May/2021 00:48:53] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 00:50:05,475 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 00:50:09,330 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 00:50:09,330 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 00:50:09,478 :: 127.0.0.1 - - [30/May/2021 00:50:09] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 00:57:57,003 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 00:57:57,003 :: Forecasting API: deleted Prometheus job
+2021-05-30 00:57:57,003 :: Forecasting API: deleted scraper job
+2021-05-30 00:57:57,175 :: Forecasting API: deleted kafka topic
+2021-05-30 00:57:57,175 :: 127.0.0.1 - - [30/May/2021 00:57:57] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:21:33,374 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:21:52,578 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:21:52,578 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:21:52,789 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:21:52,793 :: 127.0.0.1 - - [30/May/2021 01:21:52] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:22:47,910 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:22:52,799 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:22:52,799 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:22:52,929 :: 127.0.0.1 - - [30/May/2021 01:22:52] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:23:46,003 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:23:51,979 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:23:51,979 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:23:52,129 :: 127.0.0.1 - - [30/May/2021 01:23:52] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:24:44,193 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:24:44,193 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:24:44,193 :: Forecasting API: deleted scraper job
+2021-05-30 01:24:44,324 :: Forecasting API: deleted kafka topic
+2021-05-30 01:24:44,328 :: 127.0.0.1 - - [30/May/2021 01:24:44] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:24:47,821 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:24:47,821 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:24:47,994 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:24:47,998 :: 127.0.0.1 - - [30/May/2021 01:24:47] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:25:41,925 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:25:44,667 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:25:44,667 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:25:44,813 :: 127.0.0.1 - - [30/May/2021 01:25:44] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:27:21,540 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:27:23,705 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:27:23,705 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:27:23,854 :: 127.0.0.1 - - [30/May/2021 01:27:23] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:27:39,548 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:27:43,251 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:27:43,251 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:27:43,402 :: 127.0.0.1 - - [30/May/2021 01:27:43] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:28:08,384 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:28:13,625 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:28:13,625 :: Forecasting API: deleted scraper job
+2021-05-30 01:28:13,794 :: Forecasting API: deleted kafka topic
+2021-05-30 01:28:13,794 :: 127.0.0.1 - - [30/May/2021 01:28:13] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:28:22,540 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:28:22,540 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:28:22,718 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:28:22,722 :: 127.0.0.1 - - [30/May/2021 01:28:22] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:39:46,078 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:39:51,270 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:39:51,270 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:39:51,415 :: 127.0.0.1 - - [30/May/2021 01:39:51] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:40:18,631 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:40:18,635 :: Prometeheus Exporter: response= <Response 1028 bytes [200 OK]>
+2021-05-30 01:40:18,635 :: 127.0.0.1 - - [30/May/2021 01:40:18] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 01:40:45,107 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:40:45,158 :: Prometeheus Exporter: response= <Response 1029 bytes [200 OK]>
+2021-05-30 01:40:45,158 :: 127.0.0.1 - - [30/May/2021 01:40:45] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 01:41:35,371 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:41:40,156 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:41:40,156 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:41:40,300 :: 127.0.0.1 - - [30/May/2021 01:41:40] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:41:45,651 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:41:45,651 :: Prometeheus Exporter: response= <Response 1028 bytes [200 OK]>
+2021-05-30 01:41:45,651 :: 127.0.0.1 - - [30/May/2021 01:41:45] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 01:42:29,161 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:42:29,165 :: Prometeheus Exporter: response= <Response 1028 bytes [200 OK]>
+2021-05-30 01:42:29,165 :: 127.0.0.1 - - [30/May/2021 01:42:29] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 01:43:57,206 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:43:57,228 :: Exception on /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 [GET]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 420, in get
+    dataF = generate_latest(REGISTRY)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\prometheus_client\exposition.py", line 107, in generate_latest
+    for metric in registry.collect():
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\prometheus_client\registry.py", line 83, in collect
+    for metric in collector.collect():
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 155, in collect
+    result = msgs.get_result()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 119, in get_result
+    result = round(value2 / number, 1)
+TypeError: unsupported operand type(s) for /: 'str' and 'int'
+2021-05-30 01:43:57,302 :: 127.0.0.1 - - [30/May/2021 01:43:57] "[35m[1mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 500 -
+2021-05-30 01:46:22,935 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:46:27,654 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:46:27,654 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:46:27,805 :: 127.0.0.1 - - [30/May/2021 01:46:27] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:46:54,440 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:47:00,065 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:47:00,065 :: Forecasting API: deleted scraper job
+2021-05-30 01:47:00,203 :: Forecasting API: deleted kafka topic
+2021-05-30 01:47:00,203 :: 127.0.0.1 - - [30/May/2021 01:47:00] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:47:05,660 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:47:05,660 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:47:05,837 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:47:05,841 :: 127.0.0.1 - - [30/May/2021 01:47:05] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:47:22,893 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:47:22,913 :: Exception on /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 [GET]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 420, in get
+    dataF = generate_latest(REGISTRY)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\prometheus_client\exposition.py", line 107, in generate_latest
+    for metric in registry.collect():
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\prometheus_client\registry.py", line 83, in collect
+    for metric in collector.collect():
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 155, in collect
+    result = msgs.get_result()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 119, in get_result
+    result = round(value2 / number, 1)
+TypeError: unsupported operand type(s) for /: 'str' and 'int'
+2021-05-30 01:47:22,921 :: 127.0.0.1 - - [30/May/2021 01:47:22] "[35m[1mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 500 -
+2021-05-30 01:48:54,095 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:48:58,621 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:48:58,621 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:48:58,793 :: 127.0.0.1 - - [30/May/2021 01:48:58] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:49:11,505 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:49:16,936 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:49:16,936 :: Forecasting API: deleted scraper job
+2021-05-30 01:49:17,085 :: Forecasting API: deleted kafka topic
+2021-05-30 01:49:17,088 :: 127.0.0.1 - - [30/May/2021 01:49:17] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:49:19,842 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:49:19,842 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:49:20,021 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:49:20,025 :: 127.0.0.1 - - [30/May/2021 01:49:20] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:49:34,928 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:49:37,810 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:49:37,810 :: Forecasting API: deleted scraper job
+2021-05-30 01:49:37,948 :: Forecasting API: deleted kafka topic
+2021-05-30 01:49:37,948 :: 127.0.0.1 - - [30/May/2021 01:49:37] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:49:39,629 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:49:39,629 :: 127.0.0.1 - - [30/May/2021 01:49:39] "[33mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 404 -
+2021-05-30 01:49:40,686 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:49:40,686 :: 127.0.0.1 - - [30/May/2021 01:49:40] "[33mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 404 -
+2021-05-30 01:49:43,695 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:49:43,695 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:49:43,888 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:49:43,892 :: 127.0.0.1 - - [30/May/2021 01:49:43] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:49:59,807 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:49:59,807 :: Exception on /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 [GET]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 377, in get
+    value = round(float(f.getForecastingValue(), 2))
+TypeError: float expected at most 1 argument, got 2
+2021-05-30 01:49:59,815 :: 127.0.0.1 - - [30/May/2021 01:49:59] "[35m[1mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 500 -
+2021-05-30 01:50:47,529 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:50:47,943 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:50:47,943 :: Forecasting API: deleted scraper job
+2021-05-30 01:50:48,092 :: Forecasting API: deleted kafka topic
+2021-05-30 01:50:48,096 :: 127.0.0.1 - - [30/May/2021 01:50:48] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:50:54,824 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:51:00,984 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:51:00,984 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:51:01,175 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:51:01,183 :: 127.0.0.1 - - [30/May/2021 01:51:01] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:51:16,233 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:51:16,253 :: Exception on /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 [GET]
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\api.py", line 325, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask\views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\flask_restplus\resource.py", line 44, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 420, in get
+    dataF = generate_latest(REGISTRY)
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\prometheus_client\exposition.py", line 107, in generate_latest
+    for metric in registry.collect():
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\venv\lib\site-packages\prometheus_client\registry.py", line 83, in collect
+    for metric in collector.collect():
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 155, in collect
+    result = msgs.get_result()
+  File "C:\Users\LENOVO\Documents\PythonProjects\forecastingPlatform\5grfbbAPI.py", line 119, in get_result
+    result = round(value2 / number, 1)
+TypeError: unsupported operand type(s) for /: 'str' and 'int'
+2021-05-30 01:51:16,261 :: 127.0.0.1 - - [30/May/2021 01:51:16] "[35m[1mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 500 -
+2021-05-30 01:52:38,540 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:52:42,566 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:52:42,566 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:52:42,705 :: 127.0.0.1 - - [30/May/2021 01:52:42] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:52:45,475 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:52:45,757 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:52:45,757 :: Forecasting API: deleted scraper job
+2021-05-30 01:52:45,895 :: Forecasting API: deleted kafka topic
+2021-05-30 01:52:45,895 :: 127.0.0.1 - - [30/May/2021 01:52:45] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:52:47,866 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:52:47,866 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:52:48,103 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:52:48,107 :: 127.0.0.1 - - [30/May/2021 01:52:48] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:52:57,766 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:52:57,789 :: Prometeheus Exporter: response= <Response 1029 bytes [200 OK]>
+2021-05-30 01:52:57,789 :: 127.0.0.1 - - [30/May/2021 01:52:57] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 01:54:58,949 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 01:55:03,139 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:55:03,139 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:55:03,273 :: 127.0.0.1 - - [30/May/2021 01:55:03] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:55:05,238 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:55:10,345 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:55:10,345 :: Forecasting API: deleted scraper job
+2021-05-30 01:55:10,507 :: Forecasting API: deleted kafka topic
+2021-05-30 01:55:10,507 :: 127.0.0.1 - - [30/May/2021 01:55:10] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:55:13,865 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:55:13,865 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:55:14,041 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:55:14,045 :: 127.0.0.1 - - [30/May/2021 01:55:14] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:55:33,224 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 01:55:39,242 :: Forecasting API: deleted Prometheus job
+2021-05-30 01:55:39,242 :: Forecasting API: deleted scraper job
+2021-05-30 01:55:39,369 :: Forecasting API: deleted kafka topic
+2021-05-30 01:55:39,369 :: 127.0.0.1 - - [30/May/2021 01:55:39] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 01:55:46,866 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 01:55:46,866 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 01:55:47,044 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 01:55:47,048 :: 127.0.0.1 - - [30/May/2021 01:55:47] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 01:56:01,118 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 01:56:01,142 :: Prometeheus Exporter: response= <Response 1029 bytes [200 OK]>
+2021-05-30 01:56:01,142 :: 127.0.0.1 - - [30/May/2021 01:56:01] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:03:24,381 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 02:03:29,776 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:03:29,776 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:03:29,922 :: 127.0.0.1 - - [30/May/2021 02:03:29] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:03:33,497 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 02:03:39,004 :: Forecasting API: deleted Prometheus job
+2021-05-30 02:03:39,004 :: Forecasting API: deleted scraper job
+2021-05-30 02:03:39,142 :: Forecasting API: deleted kafka topic
+2021-05-30 02:03:39,142 :: 127.0.0.1 - - [30/May/2021 02:03:39] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 02:03:42,783 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:03:42,783 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:03:42,969 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 02:03:42,973 :: 127.0.0.1 - - [30/May/2021 02:03:42] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:04:01,831 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 02:04:06,378 :: Forecasting API: deleted Prometheus job
+2021-05-30 02:04:06,378 :: Forecasting API: deleted scraper job
+2021-05-30 02:04:06,505 :: Forecasting API: deleted kafka topic
+2021-05-30 02:04:06,505 :: 127.0.0.1 - - [30/May/2021 02:04:06] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 02:04:10,149 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:04:10,149 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:04:10,295 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 02:04:10,299 :: 127.0.0.1 - - [30/May/2021 02:04:10] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:04:30,989 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:04:31,008 :: Prometeheus Exporter: response= <Response 1029 bytes [200 OK]>
+2021-05-30 02:04:31,008 :: 127.0.0.1 - - [30/May/2021 02:04:31] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:22:40,500 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 02:22:40,897 :: Forecasting API: deleted Prometheus job
+2021-05-30 02:22:40,897 :: Forecasting API: deleted scraper job
+2021-05-30 02:22:41,024 :: Forecasting API: deleted kafka topic
+2021-05-30 02:22:41,024 :: 127.0.0.1 - - [30/May/2021 02:22:41] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 02:22:45,186 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 02:22:49,971 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:22:49,971 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:22:50,115 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 02:22:50,123 :: 127.0.0.1 - - [30/May/2021 02:22:50] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:23:25,288 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:23:25,312 :: Prometeheus Exporter: response= <Response 1152 bytes [200 OK]>
+2021-05-30 02:23:25,312 :: 127.0.0.1 - - [30/May/2021 02:23:25] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:23:25,843 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:23:25,847 :: Prometeheus Exporter: response= <Response 1152 bytes [200 OK]>
+2021-05-30 02:23:25,847 :: 127.0.0.1 - - [30/May/2021 02:23:25] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:24:30,903 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:24:30,907 :: Prometeheus Exporter: response= <Response 1153 bytes [200 OK]>
+2021-05-30 02:24:30,907 :: 127.0.0.1 - - [30/May/2021 02:24:30] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:37:37,722 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 02:37:38,495 :: Forecasting API: deleted Prometheus job
+2021-05-30 02:37:38,495 :: Forecasting API: deleted scraper job
+2021-05-30 02:37:38,621 :: Forecasting API: deleted kafka topic
+2021-05-30 02:37:38,621 :: 127.0.0.1 - - [30/May/2021 02:37:38] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 02:37:41,637 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 02:37:45,804 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:37:45,804 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:37:45,987 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 02:37:45,991 :: 127.0.0.1 - - [30/May/2021 02:37:45] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:42:05,945 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 02:42:11,929 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 02:42:11,929 :: 127.0.0.1 - - [30/May/2021 02:42:11] "[33mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 404 -
+2021-05-30 02:42:16,187 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:42:16,187 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:42:16,330 :: 127.0.0.1 - - [30/May/2021 02:42:16] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:42:20,426 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 02:42:26,391 :: Forecasting API: deleted Prometheus job
+2021-05-30 02:42:26,391 :: Forecasting API: deleted scraper job
+2021-05-30 02:42:26,566 :: Forecasting API: deleted kafka topic
+2021-05-30 02:42:26,566 :: 127.0.0.1 - - [30/May/2021 02:42:26] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 02:42:30,249 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:42:30,249 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:42:30,484 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 02:42:30,484 :: 127.0.0.1 - - [30/May/2021 02:42:30] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:43:48,995 :: Forecasting API: request to stop forecasting job b4338be3-9ec3-11eb-9558-dc7196d747fd received
+2021-05-30 02:43:49,928 :: Forecasting API: deleted Prometheus job
+2021-05-30 02:43:49,928 :: Forecasting API: deleted scraper job
+2021-05-30 02:43:50,071 :: Forecasting API: deleted kafka topic
+2021-05-30 02:43:50,071 :: 127.0.0.1 - - [30/May/2021 02:43:50] "[37mDELETE /Forecasting/b4338be3-9ec3-11eb-9558-dc7196d747fd HTTP/1.1[0m" 200 -
+2021-05-30 02:43:53,581 ::  * Running on http://0.0.0.0:8888/ (Press CTRL+C to quit)
+2021-05-30 02:43:57,844 :: Forecasting API: new job requested{'nsId': 'fgt-82f4710-3d04-429a-8243-5a2ac741fd4d', 'vnfdId': 'spr2', 'performanceMetric': 'VcpuUsageMean', 'nsdId': 'nsEVS_aiml', 'IL': 1}
+2021-05-30 02:43:57,844 :: Forecasting API: model LSTM downloaded from AIMLP
+2021-05-30 02:43:58,025 :: Forecasting API: topic fgt-82f4710-3d04-429a-8243-5a2ac741fd4d_forecasting created
+2021-05-30 02:43:58,033 :: 127.0.0.1 - - [30/May/2021 02:43:58] "[37mPOST /Forecasting HTTP/1.1[0m" 200 -
+2021-05-30 02:44:29,429 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:44:29,429 :: Prometeheus Exporter: response= <Response 1028 bytes [200 OK]>
+2021-05-30 02:44:29,429 :: 127.0.0.1 - - [30/May/2021 02:44:29] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:44:43,999 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:44:44,019 :: Prometeheus Exporter: response= <Response 1028 bytes [200 OK]>
+2021-05-30 02:44:44,019 :: 127.0.0.1 - - [30/May/2021 02:44:44] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:44:47,164 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:44:47,167 :: Prometeheus Exporter: response= <Response 1152 bytes [200 OK]>
+2021-05-30 02:44:47,167 :: 127.0.0.1 - - [30/May/2021 02:44:47] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:46:06,713 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:46:06,713 :: Prometeheus Exporter: response= <Response 1028 bytes [200 OK]>
+2021-05-30 02:46:06,713 :: 127.0.0.1 - - [30/May/2021 02:46:06] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
+2021-05-30 02:46:09,651 :: Prometeheus Exporter: new metric request for job=b4338be3-9ec3-11eb-9558-dc7196d747fd and vnfdid=spr2
+2021-05-30 02:46:09,651 :: Prometeheus Exporter: response= <Response 1152 bytes [200 OK]>
+2021-05-30 02:46:09,651 :: 127.0.0.1 - - [30/May/2021 02:46:09] "[37mGET /metrics/b4338be3-9ec3-11eb-9558-dc7196d747fd/spr2 HTTP/1.1[0m" 200 -
