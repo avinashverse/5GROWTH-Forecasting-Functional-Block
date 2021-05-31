@@ -41,13 +41,14 @@ The project actvates a flask rest server, listening by default on port 8888.
 The main APIs are described following:
 ### create a new job
 POST http://127.0.0.1:8888/Forecasting
-{ 
+   
+   { 
     "nsId" : "fgt-82f4710-3d04-429a-8243-5a2ac741fd4d",
     "vnfdId" : "spr2",
     "performanceMetric" :  "VcpuUsageMean",
     "nsdId" : nsEVS_aiml,
     "IL" : 1
-}
+   }
 
 ### Update the current IL
 PUT http://127.0.0.1:8888/Forecasting?job_id=job&IL=x
