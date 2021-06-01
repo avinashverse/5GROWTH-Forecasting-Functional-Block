@@ -52,7 +52,7 @@ class ExternalConnections:
             self.localIp = config['local']['localIP']
             self.localPort = config['local']['localPort']
 
-    ### KAFKA APIs ###
+    ### KAFKA methods ###
 
     #create a new kafka topic
     def createKafkaTopic(self, ns_id):
@@ -102,14 +102,16 @@ class ExternalConnections:
         consumer.subscribe([topic])
         return consumer
 
-    def startPrometheusJob(self, name, vnfdId, nsId, period, job_id):
+    ### Prometheus methods ###
+
+    def startPrometheusJob(self, vnfdId, nsId, period, job_id):
         # job_id = str(uuid4())
         header = {'Accept': 'application/json',
                   'Content-Type': 'application/json'
                   }
         # create the exporter for the job
         monitoring_uri = "http://" + self.monIp + ":" + self.monPort + self.monUrl + "/exporter"
-
+        name = nsId + "-" + vnfdId
         body = {"name": name,
                 "endpoint": [ {"address": self.localIp,
                                "port": self.localPort}
@@ -121,17 +123,17 @@ class ExternalConnections:
                 "metrics_path": "/metrics/" + job_id + "/" + vnfdId
                }
         try:
-            conn = HTTPConnection(self.monIp, self.monPort)
-            conn.request("POST", monitoring_uri, body = dumps(body), headers = header)
+            conn = HTTPConnection(self.monIp, int(self.monPort))
+            conn.request("POST", monitoring_uri, body=dumps(body), headers=header)
             rsp = conn.getresponse()
-            exporterInfo = rsp.read()
-            exporterInfo = exporterInfo.decode("utf-8")
-            exporterInfo = loads(exporterInfo)
+            info = rsp.read()
+            info = info.decode("utf-8")
+            info = loads(info)
         except ConnectionRefusedError:
             print("Error, connection refused")
-        return exporterInfo
+        return info
 
-    #stop a running monitoring job
+    #stop a running prometheus job
     def stopPrometheusJob(self, jobId):
         header = {'Content-Type': 'application/json',
                   'Accept': 'application/json'}
@@ -144,7 +146,8 @@ class ExternalConnections:
         except ConnectionRefusedError:
             print("Error, connection refused)")
 
-    ### SCRAPER APIs ###
+    ### SCRAPER methods ###
+
     #create scraper job
     def startScraperJob(self, nsid, topic, vnfdid, metric, expression, period):
             header = {'Accept': 'application/json',

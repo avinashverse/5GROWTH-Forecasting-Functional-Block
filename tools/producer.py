@@ -41,15 +41,11 @@ message = """
             "forecasted": "no"
         },
         "value": [
-            1618383722.708,
-            "100"
+            1605182761.708,
+            "11.51"
         ],
         "type_message": "metric"
-    }
-]
-"""
-'''
-    , 
+    },
     {
         "metric": {
             "__name__": "node_cpu_seconds_total",
@@ -64,13 +60,12 @@ message = """
         },
         "value": [
             1618383722.708,
-            "9.05"
+            "11.51"
         ],
         "type_message": "metric"
     }
 ]
 """
-'''
 
 
 def delivery_callback(err, msg):
