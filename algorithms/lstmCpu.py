@@ -16,13 +16,13 @@
 import pandas
 import numpy as np
 from numpy import array
-from keras.models import Sequential
-from keras.models import load_model
-from keras.layers import LSTM
-from keras.layers import Dense
-from keras.layers import RepeatVector
-from keras.layers import TimeDistributed
-from keras.callbacks import Callback
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.models import load_model
+from tensorflow.python.keras.layers import LSTM
+from tensorflow.python.keras.layers import Dense
+from tensorflow.python.keras.layers import RepeatVector
+from tensorflow.python.keras.layers import TimeDistributed
+from tensorflow.python.keras.callbacks import Callback
 from sklearn.preprocessing import MinMaxScaler
 
 
