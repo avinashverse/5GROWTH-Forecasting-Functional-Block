@@ -221,6 +221,7 @@ class _Forecasting(Resource):
             topic = nsid + "_forecasting"
         reqs[str(req_id)]['kafkaTopic'] = topic
         # TODO: check scraper job API call is working
+
         # create scraper job and update the reqs dict
         expression = metric + '{mode=\"idle\",nsId=\"' + nsid + '\",vnfdId=\"' + vnfdid + '\", forecasted=\"no\"'
         # rep = ec.startScraperJob(nsid = nsid, topic = topic, vnfdid = vnfdid, metric = metric,
