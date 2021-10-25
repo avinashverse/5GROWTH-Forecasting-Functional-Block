@@ -25,10 +25,13 @@ from tensorflow.python.keras.layers import TimeDistributed
 from tensorflow.python.keras.callbacks import Callback
 from sklearn.preprocessing import MinMaxScaler
 
+import logging
+
+log = logging.getLogger("Forecaster")
 
 class lstmcpu:
     def __init__(self, file, ratio, back, forward, accuracy):
-        print("initaite the lstm module")
+        log.debug("initaite the lstm module")
         if file is None:
             self.train_file = "../data/example-fin.csv"
         else:
@@ -143,13 +146,13 @@ class lstmcpu:
         #return history.epoch, history.history['accuracy'][-1]
         return self.model
 
-    def load_trained_model(self, file):
-        print("loading the lstm model from file " + file)
-        self.model = load_model(file)
+    def load_trained_model(self, filename):
+        log.info("LSTM: Loading the lstm model from file {}".format(filename))
+        self.model = load_model(filename)
         return self.model
 
     def predict(self, column, data, scaler, features):
-        print("predicting the value")
+        log.debug("LSTM: Predicting the value")
         if data is None:
             prediction = self.model.predict(self.testX, verbose=0)
         else:

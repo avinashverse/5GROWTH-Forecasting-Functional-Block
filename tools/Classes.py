@@ -26,6 +26,10 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from algorithms.lstmCpu import lstmcpu
 
+import logging
+
+log = logging.getLogger("Forecaster")
+
 
 class ForecastingJob:
     """
@@ -55,6 +59,7 @@ class ForecastingJob:
 
     def data_parser(self, json_data):
         loaded_json = json.loads(json_data)
+        log.debug("Forecasting Job: received data: \n{}".format(loaded_json))
         names = {}
         if self.model == "Test":
             if "cpu" or "CPU" or "Cpu" in self.metric:
@@ -80,6 +85,7 @@ class ForecastingJob:
         if self.model == "lstm":
             if "cpu" or "CPU" or "Cpu" in self.metric:
                 for element in loaded_json:
+                    #print(element)
                     mtype = element['type_message']
                     if mtype == "metric":
                         instance = element['metric']['instance']
@@ -94,29 +100,31 @@ class ForecastingJob:
                             names[instance]['cpus'] = []
                             names[instance]['modes'] = []
                             names[instance]['values'] = []
-                            names[instance]['time'] = []
+                            names[instance]['timestamp'] = []
                         names[instance]['cpus'].append(cpu)
                         names[instance]['modes'].append(mode)
                         names[instance]['values'].append(round(float(val),2))
-                        names[instance]['time'].append(t)
+                        names[instance]['timestamp'].append(t)
                 self.names = names
                 avg_cpu = 0
                 t = None
                 for key in names.keys():
                     avg_cpu = sum(names[key]['values'])/len(names[key]['values'])
                     if t is None:
-                        t = names[key]['time'][0]
-                string = str(t) + ";" + str(self.il) + ";" +str(avg_cpu)+ ";48"
-                self.lstm_data = StringIO("col1;col2;col3;col4\n"+string+"\n")
+                        t = names[key]['timestamp'][0]
+                string = str(t) + ";" + str(self.il) + ";" +str(avg_cpu)+ ";48;1"
+                self.lstm_data = StringIO("col1;col2;col3;col4;col5\n"+string+"\n")
+
+                #1605184144.25,1,81.48,96.06,1
 
         else:
-            print("Model not supported")
+            print("Forecasting Job: model not supported")
 
     def get_names(self):
         return self.names
 
     def run(self, event, consumer):
-        print("Starting the Kafka Consumer")
+        log.debug("Forecasting Job: Starting the Kafka Consumer")
         while not event.is_set():
             try:
                 msg = consumer.poll(1.0)
@@ -125,22 +133,23 @@ class ForecastingJob:
                 if msg.error():
                     if msg.error().code() == KafkaError._PARTITION_EOF:
                         # End of partition event
-                        print('%% %s [%d] reached end at offset %d\n' %
+                        log.error('Forecatsing Job: %% %s [%d] reached end at offset %d\n' %
                                      (msg.topic(), msg.partition(), msg.offset()))
                     elif msg.error():
                         raise KafkaException(msg.error())
                 else:
                     #no error -> message received
-                    print("Received new data")
+                    #print("Received new data")
+                    #print(msg.value())
                     self.data_parser(msg.value())
 
             except ConsumeError as e:
-                print("Consumer error: {}".format(str(e)))
+                log.error("Forecasting Job: Consumer error: {}".format(str(e)))
                 # Should be commits manually handled?
                 consumer.close()
 
     def str(self):
-        return '{ Forecasting job:\n\tmodel: ' + str(self.model) + '\n\tjob_id: ' + str(self.job_id) + \
+        return '{ Forecasting Job:\n\tmodel: ' + str(self.model) + '\n\tjob_id: ' + str(self.job_id) + \
         '\n\tns_type: ' + str(self.nstype) + \
         '\n\ttime_steps: ' + str(self.time_steps) + '\n\tbatch_size: ' + str(self.batch_size) + '\n}'
 
@@ -164,7 +173,7 @@ class ForecastingJob:
             else:
                 self.train_model(0.8, back, forward, None, filename)
 
-    def get_forecasting_value(self, n_features):
+    def get_forecasting_value(self, n_features, desired):
         if self.model == "Test":
             return round(float(np.sum(self.data.astype(np.float)) / len(self.data)), 2)
         elif self.model == "lstm":
@@ -173,8 +182,8 @@ class ForecastingJob:
             scaler = MinMaxScaler(feature_range=(0, 1))
             dsx = scaler.fit_transform(ds)
             testX = dsx
-            test = np.reshape(testX, (1, 1, 4))
-            value = self.trained_model.predict(2, test, scaler, n_features)
+            test = np.reshape(testX, (1, 1, n_features))
+            value = self.trained_model.predict(desired, test, scaler, n_features)
             return round(float(value[0]), 2)
 
         else:
@@ -190,7 +199,7 @@ class ForecastingJob:
         self.trained_model = model
 
     def load_lstm_model(self, back, forward, filename):
-        print("loading the module")
+        log.debug("Forecasting Job: loading the LSTM forecasting model")
         lstm = lstmcpu(None, None, back, forward, None)
         lstm.load_trained_model(filename)
         self.set_trained_model(lstm)

@@ -28,6 +28,7 @@ import time
 
 from tools.Classes import ForecastingJob
 from tools.externalConnections import ExternalConnections
+from tools.adapters import metricConverter
 
 # New API implemented
 # Start job
@@ -76,7 +77,10 @@ prometheusApi = api.namespace('', description='REST API used by the Prometheus e
 # module to load FFB configuration
 config = configparser.ConfigParser()
 # logging configuration
-logging.basicConfig(format='%(asctime)s :: %(message)s', level=logging.INFO, filename='5grfbb.log')
+#logging.basicConfig(format='%(asctime)s :: %(message)s', level=logging.DEBUG, filename='5grfbb.log')
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG, filename='5grfbb.log')
+log = logging.getLogger("APIModule")
+
 
 ec = None
 
@@ -106,10 +110,12 @@ class SummMessages(object):
             name = element.get("name")
             cpu = element.get("cpu")
             mode = element.get("mode")
-            host = name + '::' + cpu + '::' + mode
+            time = element.get("timestamp")
+            host = name + '::' + cpu + '::' + mode + '::' + str(time)
             del element['name']
             del element['cpu']
             del element['mode']
+            del element['timestamp']
 
             for key, value in element.items():
                 if key in self.dict_sum.keys():
@@ -163,17 +169,19 @@ class CustomCollector(object):
         for parameter, values in result.items():
             if "cpu" or "CPU" or "Cpu" in parameter:
                 for value in values:
-                    [instance, cpu, mode] = str(value['host']).split('::', 2)
-                    label = [cpu, mode, instance]
+                    [instance, cpu, mode, t] = str(value['host']).split('::', 3)
+                    #labels = [cpu, mode, instance, t]
+                    #gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'timestamp'])
+                    labels = [cpu, mode, instance]
                     gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance'])
-                    gmf.add_metric(label, value['value'])
+                    gmf.add_metric(labels, value['value'])
                     metrics.append(gmf)
-        logging.debug('Prometheus Exporter: New metrics computed ' + str(metrics))
+        log.debug('Prometheus Exporter: New metrics computed ' + str(metrics))
         for metric in metrics:
             yield metric
 
     def set_parameters(self, r):
-        logging.debug('Prometheus Exporter: new job selected' + str(r))
+        log.debug('Prometheus Exporter: new job selected' + str(r))
         self.id = r
 
 
@@ -196,58 +204,82 @@ class _Forecasting(Resource):
         global ec
 
         request_data = request.get_json()
-        logging.info('Forecasting API: new job requested' + str(request_data))
+        log.info('Forecasting API: new job requested \n' + str(request_data))
         # input data in the payload in json format
         nsid = request_data['nsId']
         vnfdid = request_data['vnfdId']
-        metric = request_data['performanceMetric']
+        metrics = request_data['performanceMetric']
         nsdid = request_data['nsdId']
         il = request_data['IL']
         # dynamic request_id creation
         req_id = uuid.uuid1()
         # static id (only for development purpose)
         #req_id = "1aa0c8e6-c26e-11eb-a8ba-782b46c1eefd"
-        reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'count': 2, 'nsdId': nsdid,
-                             'performanceMetric': metric, 'isActive': True, 'scraperJob': None,
+        
+
+        reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'nsdId': nsdid,
+                             'performanceMetric': metrics, 'isActive': True, 'scraperJob': None,
                              'kafkaTopic': None, 'prometheusJob': None, 'model': None}
-        logging.debug('Forecasting API: DB updated with new job ' + str(req_id))
+        log.debug('Forecasting API: DB updated with new job id ' + str(req_id))
 
         # create kafka topic and update reqs dict
         topic = ec.createKafkaTopic(nsid)
         if topic != 0:
-
-            logging.info('Forecasting API: topic ' + topic + ' created')
+            log.info('Forecasting API: topic ' + topic + ' created')
         else:
-            topic = nsid + "_forecasting"
+            log.info('Forecasting API: topic not created')
+            reqs[str(req_id)] = {'isActive': False}
+            return "Kafka topic not created, aborting", 403
         reqs[str(req_id)]['kafkaTopic'] = topic
-        # TODO: check scraper job API call is working
-
+        metric = metricConverter(metrics)
+        if metric is None:
+            return "Problem converting the metric", 403
         # create scraper job and update the reqs dict
-        expression = metric + '{mode=\"idle\",nsId=\"' + nsid + '\",vnfdId=\"' + vnfdid + '\", forecasted=\"no\"'
-        # rep = ec.startScraperJob(nsid = nsid, topic = topic, vnfdid = vnfdid, metric = metric,
-        #                      expression = expression, period = 15)
-        # logging.info('Forecasting API: scraper job '+rep+' created')
+        expression = metric+"{nsId=\""+nsid+"\", vnfdId=\""+vnfdid+"\", mode=\"idle\", forecasted=\"no\"}"
+        #expression = metric + '{mode=\"idle\",nsId=\"' + nsid + '\",vnfdId=\"' + vnfdid + '\", forecasted=\"no\"'
+        #expressin = "avg((1 - avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\",nsId=\"fgt-8fbe460-6b51-4295-b1db-b5f323ec18c4\",vnfdId=\"spr2\"}[1m]))) * 100)"
+        sId = ec.startScraperJob(nsid = nsid, topic = topic, vnfdid = vnfdid, metric = metric,
+                              expression = expression, period = 15)
+        if sId is not None:
+            #print("scraper job "+ str(sId)+ " started")
+            log.info('Forecasting API: scraper job ' + sId + ' created')
+        else:
+            ec.deleteKafkaTopic(topic)
+            reqs[str(req_id)] = {'isActive': False}
+            return "Scraper job not created aborting", 403
         # TODO
         # mapping algorithm
         # model_forecasting = "Test"
         model_forecasting = "lstm"
 
         reqs[str(req_id)]['model'] = model_forecasting
-        logging.debug('Forecasting API: model selected ' + model_forecasting)
+        log.debug('Forecasting API: Model selected ' + model_forecasting)
         # TODO: connect to AIML
         # download the model form AI/ML platform
         #logging.info('Forecasting API: model ' + model_forecasting + ' downloaded from AIMLP')
 
         fj = ForecastingJob(req_id, nsdid, model_forecasting, metric, il)
-        logging.debug('Forecasting API: forecasting job created ' + fj.str())
-        fj.set_model(1, 1, True, 'trainedModels/lstm11.h5')
+        log.debug('Forecasting API: forecasting job created ' + fj.str())
+        #fj.set_model(1, 1, True, 'trainedModels/lstm11.h5')
+        fj.set_model(1, 1, True, 'trainedModels/lstm11bis.h5')
         event = Event()
         t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(req_id, topic)))
         t.start()
-        active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event}#, 'trained_model': trainedModel}
-        # TODO: check prometheus job API call is working
         # create Prometheus job pointing to the exporter
-        #ec.startPrometheusJob(vnfdid, nsid, 15, req_id)
+        pId = ec.startPrometheusJob(vnfdid, nsid, 15, req_id)
+        if pId is not None:
+            #print("Prometheus job "+ str(pId)+ " started")
+            log.info('Forecasting API: Prometheus job ' + pId + ' created')
+        else:
+            ec.deleteKafkaTopic(topic)
+            ec.stopScraperJob(sId)
+            reqs[str(req_id)] = {'isActive': False}
+            return "Prometheus job not created aborting", 403
+        print("pj=\""+ str(pId)+ "\"")
+        print("sj=\""+ str(sId)+ "\"")
+        active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event}#, 'trained_model': trainedModel}
+        reqs[str(req_id)]['prometheusJob'] = pId
+        reqs[str(req_id)]['scraperJob'] = sId
         return str(req_id), 200
 
     @staticmethod
@@ -262,29 +294,30 @@ class _Forecasting(Resource):
 @restApi.response(200, 'Success')
 @restApi.response(404, 'Forecasting job not found')
 @restApi.response(410, 'Forecasting job not started')
-class _Forecasting1(Resource):
+class _ForecastingDeleter(Resource):
     # @restApi.doc(description="handling new forecasting requests")
-    # put method receives data as payload in json format
     @staticmethod
     def delete(job_id):
         global active_jobs
         global reqs
-
-        logging.info('Forecasting API: request to stop forecasting job ' + job_id + ' received')
-        if job_id in active_jobs.keys():
-            element = active_jobs[job_id]
+        log.info('Forecasting API: request to stop forecasting job ' + job_id + ' received')
+        if str(job_id) in active_jobs.keys():
+            element = active_jobs[str(job_id)]
             thread = element.get('thread')
             event = element.get('kill_event')
             event.set()
             thread.join()
-            active_jobs.pop(job_id)
-            print(active_jobs)
-            # TODO
+            active_jobs.pop(str(job_id))
+            pj = reqs[str(job_id)].get('prometheusJob')
+            sj = reqs[str(job_id)].get('scraperJob')
+            
             # delete Prometheus job pointing to the exporter
-            logging.info('Forecasting API: deleted Prometheus job')
-            # TODO
+            ec.stopPrometheusJob(pj)
+            log.info('Forecasting API: deleted Prometheus job')
+            
             # delete scraper job and update the reqs model
-            logging.info('Forecasting API: deleted scraper job')
+            ec.stopScraperJob(sj)
+            log.info('Forecasting API: deleted scraper job')
 
             # delete kafla topic and update reqs dict
             topic = reqs[str(job_id)].get('kafkaTopic')
@@ -292,7 +325,7 @@ class _Forecasting1(Resource):
                 ec.deleteKafkaTopic(topic)
             else:
                 ec.deleteKafkaTopic(reqs[str(job_id)].get('nsId') + "_forecasting")
-            logging.info('Forecasting API: deleted kafka topic')
+            log.info('Forecasting API: deleted kafka topic')
             if job_id in reqs.keys():
                 reqs[str(job_id)] = {'isActive': False}
             return 'Forecasting job ' + job_id + ' Successfully stopped', 200
@@ -305,48 +338,67 @@ class _Forecasting1(Resource):
         global reqs
 
         if job_id in reqs.keys():
-            logging.info('Forecasting API: GET job info, ' + str(reqs[str(job_id)]))
+            log.info('Forecasting API: GET job info, ' + str(reqs[str(job_id)]))
             return reqs[str(job_id)], 200
         else:
-            logging.info('Forecasting API: GET job info, job not found ' + job_id)
+            log.info('Forecasting API: GET job info, job not found ' + job_id)
             return 'Forecasting job not found', 404
 
 
 @restApi.route('/Forecasting/<string:job_id>/<string:il>')
 @restApi.response(200, 'Success')
 @restApi.response(404, 'not found')
-class _ForecastingAdd(Resource):
+class _ForecastingSetIL(Resource):
     @staticmethod
     def put(job_id, il):
+        global active_jobs
+        global reqs
         if str(job_id) in reqs.keys():
+            oldIL = reqs[str(job_id)].get('IL')
             reqs[str(job_id)]['IL'] = il
-            logging.info('Forecasting API: IL for job ' + job_id + ' updated to value ' + str(il))
+
+            log.info('Forecasting API: IL for job ' + job_id + ' updated to value ' + str(il))
             return 'Instantiation level updated', 200
         else:
-            logging.info('Forecasting API: PUT IL, job not found ' + job_id)
+            log.info('Forecasting API: PUT IL, job not found ' + job_id)
             return 'Forecasting job not found', 404
 
 
-@prometheusApi.route('/metrics/<string:job_id>/<string:vnfd_id>')
+#@prometheusApi.route('/metrics/<string:job_id>/<string:vnfd_id>')
+@prometheusApi.route('/metrics/<string:nsid>/<string:vnfd_id>')
 @prometheusApi.response(200, 'Success')
 @prometheusApi.response(404, 'Not found')
 class _PrometheusExporter(Resource):
     @prometheusApi.doc(description="handling Prometheus connections")
-    def get(self, job_id, vnfd_id):
+    #def get(self, job_id, vnfd_id):
+    def get(self, nsid, vnfd_id):
         global data
         global active_jobs
         global reqs
-        logging.info('Prometeheus Exporter: new metric request for job=' + job_id + ' and vnfdid=' + vnfd_id)
+        #log.info('Prometeheus Exporter: new metric request for job=' + job_id + ' and vnfdid=' + vnfd_id)
+        log.info('Prometeheus Exporter: new metric request for nsid=' + nsid + ' and vnfdid=' + vnfd_id)
 
-        jobid = job_id
         is_exists = False
-        for key in active_jobs.keys():
-            if key == jobid:
-                is_exists = True
-                if reqs[str(job_id)].get('vnfdId') == vnfd_id:
-                    break
+        #for key in active_jobs.keys():
+        #    if key == jobid:
+        #        is_exists = True
+        #        if reqs[str(job_id)].get('vnfdId') == vnfd_id:
+        #            break
+        job_id = None
+        #print(nsid)
+        #print(vnfd_id)
+        for key in reqs.keys():
+            #print(str(reqs[str(key)].get('nsId')))
+            #print(str(reqs[str(key)].get('vnfdId')))
+            if str(reqs[str(key)].get('nsId')) == str(nsid):
+               if str(reqs[str(key)].get('vnfdId')) == str(vnfd_id):
+                   job_id = str(key)
+                   is_exists = True
+                   break
+        #print(job_id)
+        jobid=job_id
         if not is_exists:
-            logging.info('Prometeheus Exporter: job not found ' + job_id)
+            log.info("Prometeheus Exporter: nsid/vnfdid {}/{} not found ".format(nsid, vnfd_id))
             return 'Forecasting job not found', 404
         f = active_jobs[str(job_id)].get('job')
         # get forecasting value
@@ -354,11 +406,11 @@ class _PrometheusExporter(Resource):
         if f.get_model() == "Test":
             value = f.get_forecasting_value(None)
         elif f.get_model() == "lstm":
-            value = f.get_forecasting_value(4)
+            value = f.get_forecasting_value(5, 2)
             #print(str(value))
 
         metric = reqs[str(job_id)].get('performanceMetric')
-
+   
         # creating replicas for the average data
         if "cpu" or "CPU" or "Cpu" in metric:
             names = f.get_names()
@@ -367,12 +419,14 @@ class _PrometheusExporter(Resource):
                 for c in range(0, len(names[instance]['cpus'])):
                     cpu = str(names[instance]['cpus'][c])
                     mode = str(names[instance]['modes'][c])
+                    timestamp = str(names[instance]['timestamp'][c])
                     return_data = {
                         'job': job_id,
                         'metric': metric,
                         'name': instance,
                         'cpu': cpu,
                         'mode': mode,
+                        'timestamp': round(float(timestamp), 2) + 15.0,
                         str(metric): value
                     }
                     return_data_str = json.dumps(return_data)
@@ -388,17 +442,18 @@ class _PrometheusExporter(Resource):
         reply = generate_latest(REGISTRY)
         response = make_response(reply, 200)
         response.mimetype = "text/plain"
-        logging.info('Prometheus Exporter: response= ' + str(response))
+        log.info('Prometheus Exporter: response= ' + str(response))
         return response
 
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('config.conf')
-    logging.debug('Configuration file parsed and read')
+    log.debug('Forecasting API: Configuration file parsed and read')
 
+    #ec = ExternalConnections('config.conf', logging)
     ec = ExternalConnections('config.conf')
-    logging.debug('External connection module initialized')
+    log.debug('Forecasting API: External connection module initialized')
     if 'local' in config:
         ip = config['local']['localIP']
         port = config['local']['localPort']
@@ -412,4 +467,4 @@ if __name__ == '__main__':
         port = PORT
 
     app.run(host='0.0.0.0', port=port)
-    logging.info('API server started on port ' + str(port))
+    log.info('Forecasting API: API server started on port ' + str(port))
