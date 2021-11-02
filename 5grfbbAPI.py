@@ -81,6 +81,7 @@ config = configparser.ConfigParser()
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG, filename='5grfbb.log')
 log = logging.getLogger("APIModule")
 
+testForecasting = 0
 
 ec = None
 
@@ -103,21 +104,39 @@ class SummMessages(object):
         self.dict_number = {}
 
     def add(self, element):
+        global testForecasting
         metric = element.get("metric")
         del element['metric']
-        if "cpu" or "CPU" or "Cpu" in metric:
-            del element['job']
-            name = element.get("name")
-            cpu = element.get("cpu")
-            mode = element.get("mode")
-            time = element.get("timestamp")
-            host = name + '::' + cpu + '::' + mode + '::' + str(time)
-            del element['name']
-            del element['cpu']
-            del element['mode']
-            del element['timestamp']
+        del element['job']
+        name = element.get("name")
+        cpu = element.get("cpu")
+        mode = element.get("mode")
+        time = element.get("timestamp")
+        del element['name']
+        del element['cpu']
+        del element['mode']
+        del element['timestamp']
 
-            for key, value in element.items():
+        if testForecasting == 0:
+          if "cpu" or "CPU" or "Cpu" in metric:
+             host = name + '::' + cpu + '::' + mode + '::' + str(time)
+             for key, value in element.items():
+                if key in self.dict_sum.keys():
+                    if host in self.dict_sum[key].keys():
+                        self.dict_sum[key][host] += value
+                        self.dict_number[key][host] += 1
+                    else:
+                        self.dict_sum[key].update({host: value})
+                        self.dict_number[key].update({host: 1})
+                else:
+                    self.dict_sum.update({key: {host: value}})
+                    self.dict_number.update({key: {host: 1}})
+        else:
+          input_val = element.get("input")
+          del element['input']
+          if "cpu" or "CPU" or "Cpu" in metric:
+             host = name + '::' + cpu + '::' + mode + '::' + str(time) + '::' + input_val
+             for key, value in element.items():
                 if key in self.dict_sum.keys():
                     if host in self.dict_sum[key].keys():
                         self.dict_sum[key][host] += value
@@ -153,6 +172,7 @@ class CustomCollector(object):
 
     def collect(self):
         global data
+        global testForecasting
         found_key = ""
         for key in data.keys():
             if self.id == key:
@@ -167,13 +187,24 @@ class CustomCollector(object):
         result = msgs.get_result()
         metrics = []
         for parameter, values in result.items():
-            if "cpu" or "CPU" or "Cpu" in parameter:
-                for value in values:
+            if testForecasting == 0:
+               if "cpu" or "CPU" or "Cpu" in parameter:
+                 for value in values:
                     [instance, cpu, mode, t] = str(value['host']).split('::', 3)
                     #labels = [cpu, mode, instance, t]
                     #gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'timestamp'])
                     labels = [cpu, mode, instance]
                     gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance'])
+                    gmf.add_metric(labels, value['value'])
+                    metrics.append(gmf)
+            else:
+               if "cpu" or "CPU" or "Cpu" in parameter:
+                 for value in values:
+                    [instance, cpu, mode, t, input_val] = str(value['host']).split('::', 4)
+                    #labels = [cpu, mode, instance, t]
+                    #gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'timestamp'])
+                    labels = [cpu, mode, instance, input_val]
+                    gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'input'])
                     gmf.add_metric(labels, value['value'])
                     metrics.append(gmf)
         log.debug('Prometheus Exporter: New metrics computed ' + str(metrics))
@@ -208,9 +239,16 @@ class _Forecasting(Resource):
         # input data in the payload in json format
         nsid = request_data['nsId']
         vnfdid = request_data['vnfdId']
-        metrics = request_data['performanceMetric']
+        metricSO = request_data['performanceMetric']
         nsdid = request_data['nsdId']
-        il = request_data['IL']
+        ilSO = request_data['IL']
+        il = 0
+        if "il_small" in ilSO:
+            il = 1
+        elif "il_big" in ilSO:
+            il = 2
+        
+        log.debug("Forecasting API: considered IL={}".format(str(il)))
         # dynamic request_id creation
         req_id = uuid.uuid1()
         # static id (only for development purpose)
@@ -218,7 +256,7 @@ class _Forecasting(Resource):
         
 
         reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'nsdId': nsdid,
-                             'performanceMetric': metrics, 'isActive': True, 'scraperJob': None,
+                             'performanceMetric': None, 'isActive': True, 'scraperJob': None,
                              'kafkaTopic': None, 'prometheusJob': None, 'model': None}
         log.debug('Forecasting API: DB updated with new job id ' + str(req_id))
 
@@ -231,7 +269,8 @@ class _Forecasting(Resource):
             reqs[str(req_id)] = {'isActive': False}
             return "Kafka topic not created, aborting", 403
         reqs[str(req_id)]['kafkaTopic'] = topic
-        metric = metricConverter(metrics)
+        metric = metricConverter(metricSO)
+        reqs[str(req_id)]['performanceMetric'] = metric
         if metric is None:
             return "Problem converting the metric", 403
         # create scraper job and update the reqs dict
@@ -375,6 +414,7 @@ class _PrometheusExporter(Resource):
         global data
         global active_jobs
         global reqs
+        global testForecasting
         #log.info('Prometeheus Exporter: new metric request for job=' + job_id + ' and vnfdid=' + vnfd_id)
         log.info('Prometeheus Exporter: new metric request for nsid=' + nsid + ' and vnfdid=' + vnfd_id)
 
@@ -407,16 +447,14 @@ class _PrometheusExporter(Resource):
             value = f.get_forecasting_value(None)
         elif f.get_model() == "lstm":
             value = f.get_forecasting_value(5, 2)
-            #print(str(value))
-
         metric = reqs[str(job_id)].get('performanceMetric')
-   
-        # creating replicas for the average data
-        if "cpu" or "CPU" or "Cpu" in metric:
-            names = f.get_names()
-            #print(names)
-            for instance in names.keys():
-                for c in range(0, len(names[instance]['cpus'])):
+        if testForecasting == 0:
+           # creating replicas for the average data
+           if "cpu" or "CPU" or "Cpu" in metric:
+              names = f.get_names()
+              #print(names)
+              for instance in names.keys():
+                 for c in range(0, len(names[instance]['cpus'])):
                     cpu = str(names[instance]['cpus'][c])
                     mode = str(names[instance]['modes'][c])
                     timestamp = str(names[instance]['timestamp'][c])
@@ -429,6 +467,7 @@ class _PrometheusExporter(Resource):
                         'timestamp': round(float(timestamp), 2) + 15.0,
                         str(metric): value
                     }
+
                     return_data_str = json.dumps(return_data)
                     json_obj2 = json.loads(return_data_str)
                     if json_obj2['job'] not in data.keys():
@@ -437,6 +476,53 @@ class _PrometheusExporter(Resource):
                     data[jobid].put(json_obj2)
                     # print("push")
                     # print(data[id].qsize())
+        else:
+           if "cpu" or "CPU" or "Cpu" in metric:
+              names = f.get_names()
+              #print(names)
+              for instance in names.keys():
+                 for c in range(0, len(names[instance]['cpus'])):
+                    cpu = str(names[instance]['cpus'][c])
+                    mode = str(names[instance]['modes'][c])
+                    timestamp = str(names[instance]['timestamp'][c])
+                    curr_val = names[instance]['values'][c]
+                    return_data = {
+                        'job': job_id,
+                        'metric': metric,
+                        'name': instance,
+                        'cpu': cpu,
+                        'mode': mode,
+                        'timestamp': round(float(timestamp), 2) + 15.0,
+                        'input': "no",
+                        str(metric): value
+                    }
+
+                    return_data_str = json.dumps(return_data)
+                    json_obj2 = json.loads(return_data_str)
+                    if json_obj2['job'] not in data.keys():
+                        data[jobid] = multiprocessing.Queue()
+                    #print(return_data_str)
+                    data[jobid].put(json_obj2)
+                    return_data = {
+                        'job': job_id,
+                        'metric': metric,
+                        'name': instance,
+                        'cpu': cpu,
+                        'mode': mode,
+                        'timestamp': round(float(timestamp), 2) + 15.0,
+                        'input': "yes",
+                        str(metric): round(float(curr_val), 2)
+                    }
+
+                    return_data_str = json.dumps(return_data)
+                    json_obj2 = json.loads(return_data_str)
+                    if json_obj2['job'] not in data.keys():
+                        data[jobid] = multiprocessing.Queue()
+                    #print(return_data_str)
+                    data[jobid].put(json_obj2)
+                    # print("push")
+                    # print(data[id].qsize())
+
         time.sleep(0.1)
         cc.set_parameters(jobid)
         reply = generate_latest(REGISTRY)
@@ -457,6 +543,7 @@ if __name__ == '__main__':
     if 'local' in config:
         ip = config['local']['localIP']
         port = config['local']['localPort']
+        testForecasting = config['local']['testingEnabled']
     else:
         port = PORT
     if 'AIML' in config:

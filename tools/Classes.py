@@ -113,6 +113,7 @@ class ForecastingJob:
                     if t is None:
                         t = names[key]['timestamp'][0]
                 string = str(t) + ";" + str(self.il) + ";" +str(avg_cpu)+ ";48;1"
+                #print("csv data: {}".format(string))
                 self.lstm_data = StringIO("col1;col2;col3;col4;col5\n"+string+"\n")
 
                 #1605184144.25,1,81.48,96.06,1

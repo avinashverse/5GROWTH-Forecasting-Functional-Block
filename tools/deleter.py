@@ -7,8 +7,8 @@ createKafka = 0
 deleteKafka = 1
 
 startScraper = 0
-stopScraper = 1
-stopProm = 1
+stopScraper = 0
+stopProm = 0
 
 '''
 example
@@ -21,10 +21,10 @@ example
 }
 '''
 
-sj="4cab84ab-6b3b-464a-9bfa-f8499009be6a"
-pj="ef480b3f-92da-4d4b-b219-6a6b85afe0c3"
+sj="0a34ef28-3bb6-4223-a3f7-289a1be92a7a"
+pj="51cb0cfe-0002-4a65-99e9-1635b219c861"
 
-nsId = "fgt-6e44566-121b-4b8a-ba59-7cd0be562d4f"
+nsId = "fgt-4f61c57-9ce2-441e-9919-7674dda57c9d"
 vnfdId =  "dtdtvvnf"
 performanceMetric =  "node_cpu_seconds_total"
 nsdId = "DTwin"
@@ -56,3 +56,5 @@ if stopScraper:
 if stopProm:
     sId = ec.stopPrometheusJob(pj)
     print(sId)
+
+
