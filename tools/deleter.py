@@ -4,11 +4,11 @@ from externalConnections import ExternalConnections
 
 
 createKafka = 0
-deleteKafka = 1
+deleteKafka = 0
 
 startScraper = 0
 stopScraper = 0
-stopProm = 0
+stopProm = 1
 
 '''
 example
@@ -21,8 +21,8 @@ example
 }
 '''
 
-sj="0a34ef28-3bb6-4223-a3f7-289a1be92a7a"
-pj="51cb0cfe-0002-4a65-99e9-1635b219c861"
+pj="504c6e1f-f9d1-45a1-8275-1269fd339a62"
+sj="343047bb-f9ba-4022-8c62-8e4bfd7dbdfc"
 
 nsId = "fgt-4f61c57-9ce2-441e-9919-7674dda57c9d"
 vnfdId =  "dtdtvvnf"

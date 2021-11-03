@@ -27,6 +27,7 @@ import numpy as np
 from algorithms.lstmCpu import lstmcpu
 
 import logging
+import copy
 
 log = logging.getLogger("Forecaster")
 
@@ -56,6 +57,7 @@ class ForecastingJob:
         self.trained_model = None
         self.lstm_data = None
         self.il = il
+        self.datalist = []
 
     def data_parser(self, json_data):
         loaded_json = json.loads(json_data)
@@ -115,7 +117,10 @@ class ForecastingJob:
                 string = str(t) + ";" + str(self.il) + ";" +str(avg_cpu)+ ";48;1"
                 #print("csv data: {}".format(string))
                 self.lstm_data = StringIO("col1;col2;col3;col4;col5\n"+string+"\n")
-
+                #self.datalist.append(StringIO("col1;col2;col3;col4;col5\n"+string+"\n"))
+                self.datalist.append(StringIO(string+"\n"))
+                if len(self.datalist) > 100:
+                    del self.datalist[0]
                 #1605184144.25,1,81.48,96.06,1
 
         else:
@@ -178,7 +183,11 @@ class ForecastingJob:
         if self.model == "Test":
             return round(float(np.sum(self.data.astype(np.float)) / len(self.data)), 2)
         elif self.model == "lstm":
-            df = pd.read_csv(self.lstm_data, sep=";")
+            data1 = copy.deepcopy(self.datalist)
+            datax = data1[-1]
+            log.debug("Last data in the list is: {}".format(datax.getvalue()))
+            #df = pd.read_csv(self.lstm_data, sep=";")
+            df = pd.read_csv(datax, header=None, sep=";")
             ds = df.values
             scaler = MinMaxScaler(feature_range=(0, 1))
             dsx = scaler.fit_transform(ds)

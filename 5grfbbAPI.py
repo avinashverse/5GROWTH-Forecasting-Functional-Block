@@ -116,7 +116,6 @@ class SummMessages(object):
         del element['cpu']
         del element['mode']
         del element['timestamp']
-
         if testForecasting == 0:
           if "cpu" or "CPU" or "Cpu" in metric:
              host = name + '::' + cpu + '::' + mode + '::' + str(time)
@@ -131,7 +130,7 @@ class SummMessages(object):
                 else:
                     self.dict_sum.update({key: {host: value}})
                     self.dict_number.update({key: {host: 1}})
-        else:
+        elif testForecasting == 1:
           input_val = element.get("input")
           del element['input']
           if "cpu" or "CPU" or "Cpu" in metric:
@@ -197,7 +196,7 @@ class CustomCollector(object):
                     gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance'])
                     gmf.add_metric(labels, value['value'])
                     metrics.append(gmf)
-            else:
+            elif testForecasting == 1:
                if "cpu" or "CPU" or "Cpu" in parameter:
                  for value in values:
                     [instance, cpu, mode, t, input_val] = str(value['host']).split('::', 4)
@@ -252,7 +251,7 @@ class _Forecasting(Resource):
         # dynamic request_id creation
         req_id = uuid.uuid1()
         # static id (only for development purpose)
-        #req_id = "1aa0c8e6-c26e-11eb-a8ba-782b46c1eefd"
+        #req_id = "5d854ce8-3ca9-11ec-b2af-fa163e96b497"
         
 
         reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'nsdId': nsdid,
@@ -314,8 +313,8 @@ class _Forecasting(Resource):
             ec.stopScraperJob(sId)
             reqs[str(req_id)] = {'isActive': False}
             return "Prometheus job not created aborting", 403
-        print("pj=\""+ str(pId)+ "\"")
-        print("sj=\""+ str(sId)+ "\"")
+        #print("pj=\""+ str(pId)+ "\"")
+        #print("sj=\""+ str(sId)+ "\"")
         active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event}#, 'trained_model': trainedModel}
         reqs[str(req_id)]['prometheusJob'] = pId
         reqs[str(req_id)]['scraperJob'] = sId
@@ -452,7 +451,6 @@ class _PrometheusExporter(Resource):
            # creating replicas for the average data
            if "cpu" or "CPU" or "Cpu" in metric:
               names = f.get_names()
-              #print(names)
               for instance in names.keys():
                  for c in range(0, len(names[instance]['cpus'])):
                     cpu = str(names[instance]['cpus'][c])
@@ -476,7 +474,7 @@ class _PrometheusExporter(Resource):
                     data[jobid].put(json_obj2)
                     # print("push")
                     # print(data[id].qsize())
-        else:
+        elif testForecasting == 1:
            if "cpu" or "CPU" or "Cpu" in metric:
               names = f.get_names()
               #print(names)
@@ -543,7 +541,7 @@ if __name__ == '__main__':
     if 'local' in config:
         ip = config['local']['localIP']
         port = config['local']['localPort']
-        testForecasting = config['local']['testingEnabled']
+        testForecasting = int(config['local']['testingEnabled'])
     else:
         port = PORT
     if 'AIML' in config:
