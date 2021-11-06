@@ -28,7 +28,7 @@ import time
 
 from tools.Classes import ForecastingJob
 from tools.externalConnections import ExternalConnections
-from tools.adapters import metricConverter
+from tools.adapters import mconverter, instancecheck
 
 # New API implemented
 # Start job
@@ -77,7 +77,7 @@ prometheusApi = api.namespace('', description='REST API used by the Prometheus e
 # module to load FFB configuration
 config = configparser.ConfigParser()
 # logging configuration
-#logging.basicConfig(format='%(asctime)s :: %(message)s', level=logging.DEBUG, filename='5grfbb.log')
+# logging.basicConfig(format='%(asctime)s :: %(message)s', level=logging.DEBUG, filename='5grfbb.log')
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG, filename='5grfbb.log')
 log = logging.getLogger("APIModule")
 
@@ -118,35 +118,35 @@ class SummMessages(object):
         del element['timestamp']
 
         if testForecasting == 0:
-          if "cpu" or "CPU" or "Cpu" in metric:
-             host = name + '::' + cpu + '::' + mode + '::' + str(time)
-             for key, value in element.items():
-                if key in self.dict_sum.keys():
-                    if host in self.dict_sum[key].keys():
-                        self.dict_sum[key][host] += value
-                        self.dict_number[key][host] += 1
+            if "cpu" or "CPU" or "Cpu" in metric:
+                host = name + '::' + cpu + '::' + mode + '::' + str(time)
+                for key, value in element.items():
+                    if key in self.dict_sum.keys():
+                        if host in self.dict_sum[key].keys():
+                            self.dict_sum[key][host] += value
+                            self.dict_number[key][host] += 1
+                        else:
+                            self.dict_sum[key].update({host: value})
+                            self.dict_number[key].update({host: 1})
                     else:
-                        self.dict_sum[key].update({host: value})
-                        self.dict_number[key].update({host: 1})
-                else:
-                    self.dict_sum.update({key: {host: value}})
-                    self.dict_number.update({key: {host: 1}})
+                        self.dict_sum.update({key: {host: value}})
+                        self.dict_number.update({key: {host: 1}})
         else:
-          input_val = element.get("input")
-          del element['input']
-          if "cpu" or "CPU" or "Cpu" in metric:
-             host = name + '::' + cpu + '::' + mode + '::' + str(time) + '::' + input_val
-             for key, value in element.items():
-                if key in self.dict_sum.keys():
-                    if host in self.dict_sum[key].keys():
-                        self.dict_sum[key][host] += value
-                        self.dict_number[key][host] += 1
+            input_val = element.get("input")
+            del element['input']
+            if "cpu" or "CPU" or "Cpu" in metric:
+                host = name + '::' + cpu + '::' + mode + '::' + str(time) + '::' + input_val
+                for key, value in element.items():
+                    if key in self.dict_sum.keys():
+                        if host in self.dict_sum[key].keys():
+                            self.dict_sum[key][host] += value
+                            self.dict_number[key][host] += 1
+                        else:
+                            self.dict_sum[key].update({host: value})
+                            self.dict_number[key].update({host: 1})
                     else:
-                        self.dict_sum[key].update({host: value})
-                        self.dict_number[key].update({host: 1})
-                else:
-                    self.dict_sum.update({key: {host: value}})
-                    self.dict_number.update({key: {host: 1}})
+                        self.dict_sum.update({key: {host: value}})
+                        self.dict_number.update({key: {host: 1}})
 
     def get_result(self):
         dict_result = {}
@@ -188,25 +188,26 @@ class CustomCollector(object):
         metrics = []
         for parameter, values in result.items():
             if testForecasting == 0:
-               if "cpu" or "CPU" or "Cpu" in parameter:
-                 for value in values:
-                    [instance, cpu, mode, t] = str(value['host']).split('::', 3)
-                    #labels = [cpu, mode, instance, t]
-                    #gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'timestamp'])
-                    labels = [cpu, mode, instance]
-                    gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance'])
-                    gmf.add_metric(labels, value['value'])
-                    metrics.append(gmf)
+                if "cpu" or "CPU" or "Cpu" in parameter:
+                    for value in values:
+                        [instance, cpu, mode, t] = str(value['host']).split('::', 3)
+                        # labels = [cpu, mode, instance, t]
+                        # gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'timestamp'])
+                        labels = [cpu, mode, instance]
+                        gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance'])
+                        gmf.add_metric(labels, value['value'])
+                        metrics.append(gmf)
             else:
-               if "cpu" or "CPU" or "Cpu" in parameter:
-                 for value in values:
-                    [instance, cpu, mode, t, input_val] = str(value['host']).split('::', 4)
-                    #labels = [cpu, mode, instance, t]
-                    #gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'timestamp'])
-                    labels = [cpu, mode, instance, input_val]
-                    gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'input'])
-                    gmf.add_metric(labels, value['value'])
-                    metrics.append(gmf)
+                if "cpu" or "CPU" or "Cpu" in parameter:
+                    for value in values:
+                        [instance, cpu, mode, t, input_val] = str(value['host']).split('::', 4)
+                        # labels = [cpu, mode, instance, t]
+                        # gmf = GaugeMetricFamily(parameter, "avg_" + parameter, labels=['cpu', 'mode', 'instance', 'timestamp'])
+                        labels = [cpu, mode, instance, input_val]
+                        gmf = GaugeMetricFamily(parameter, "avg_" + parameter,
+                                                labels=['cpu', 'mode', 'instance', 'input'])
+                        gmf.add_metric(labels, value['value'])
+                        metrics.append(gmf)
         log.debug('Prometheus Exporter: New metrics computed ' + str(metrics))
         for metric in metrics:
             yield metric
@@ -242,22 +243,24 @@ class _Forecasting(Resource):
         metricSO = request_data['performanceMetric']
         nsdid = request_data['nsdId']
         ilSO = request_data['IL']
+        '''
+        #easyfix for the il detection 
         il = 0
         if "il_small" in ilSO:
             il = 1
         elif "il_big" in ilSO:
             il = 2
-        
+        '''
+
         log.debug("Forecasting API: considered IL={}".format(str(il)))
         # dynamic request_id creation
         req_id = uuid.uuid1()
         # static id (only for development purpose)
-        #req_id = "1aa0c8e6-c26e-11eb-a8ba-782b46c1eefd"
-        
+        # req_id = "1aa0c8e6-c26e-11eb-a8ba-782b46c1eefd"
 
-        reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'nsdId': nsdid,
+        reqs[str(req_id)] = {'nsId': nsid, 'vnfdId': vnfdid, 'IL': il, 'nsdId': nsdid, 'instance_name': None,
                              'performanceMetric': None, 'isActive': True, 'scraperJob': None,
-                             'kafkaTopic': None, 'prometheusJob': None, 'model': None}
+                             'kafkaTopic': None, 'prometheusJob': None, 'model': None, }
         log.debug('Forecasting API: DB updated with new job id ' + str(req_id))
 
         # create kafka topic and update reqs dict
@@ -269,18 +272,36 @@ class _Forecasting(Resource):
             reqs[str(req_id)] = {'isActive': False}
             return "Kafka topic not created, aborting", 403
         reqs[str(req_id)]['kafkaTopic'] = topic
-        metric = metricConverter(metricSO)
+        metric = mconverter(metricSO)
         reqs[str(req_id)]['performanceMetric'] = metric
         if metric is None:
             return "Problem converting the metric", 403
         # create scraper job and update the reqs dict
-        expression = metric+"{nsId=\""+nsid+"\", vnfdId=\""+vnfdid+"\", mode=\"idle\", forecasted=\"no\"}"
-        #expression = metric + '{mode=\"idle\",nsId=\"' + nsid + '\",vnfdId=\"' + vnfdid + '\", forecasted=\"no\"'
-        #expressin = "avg((1 - avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\",nsId=\"fgt-8fbe460-6b51-4295-b1db-b5f323ec18c4\",vnfdId=\"spr2\"}[1m]))) * 100)"
-        sId = ec.startScraperJob(nsid = nsid, topic = topic, vnfdid = vnfdid, metric = metric,
-                              expression = expression, period = 15)
+        #expression = ""
+        if "node_cpu_seconds_total" in metric:
+            '''
+               node_cpu_seconds_total{ cpu = "0", exporter = "node_exporter", forecasted = "no", instance = "dtdtvvnf-1",
+                         job = "9581e637-345b-42f8-849f-1cd89f24221d", mode = "idle",
+                         nsId = "fgt-4f61c57-9ce2-441e-9919-7674dda57c9d", vnfdId = "dtdtvvnf"}
+            '''
+            expression = metric + "{nsId=\"" + nsid + "\", vnfdId=\"" + vnfdid + "\", mode=\"idle\", forecasted=\"no\"}"
+        elif "app_latency" in metric:
+            '''
+                app_latency example
+                app_latency{exporter="applatencydt_exporter", forecasted="no", instance="dtdtvvnf-1",
+                            instance_id="fgt-6e44566-121b-4b8a-ba59-7cd0be562d4f-0-dtdtvvnf-1", 
+                            job="e3cc978f-965c-4aa1-9189-50ad5719309f", nsId="fgt-6e44566-121b-4b8a-ba59-7cd0be562d4f", 
+                            robot_id="10.10.10.221", vnfdId="dtdtvvnf"}
+            '''
+            expression = metric + "{nsId=\"" + nsid + "\", vnfdId=\"" + vnfdid + "\", forecasted=\"no\"}"
+            # exporter = "app_latencydt_exporter", forecasted = "no", robot_id = "10.10.10.221", vnfdId = "dtdtvvnf"}
+        else:
+            expression = metric + "{nsId=\"" + nsid + "\", vnfdId=\"" + vnfdid + "\", forecasted=\"no\"}"
+            # expressin = "avg((1 - avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\",nsId=\"fgt-8fbe460-6b51-4295-b1db-b5f323ec18c4\",vnfdId=\"spr2\"}[1m]))) * 100)"
+        sId = ec.startScraperJob(nsid=nsid, topic=topic, vnfdid=vnfdid, metric=metric,
+                                 expression=expression, period=15)
         if sId is not None:
-            #print("scraper job "+ str(sId)+ " started")
+            # print("scraper job "+ str(sId)+ " started")
             log.info('Forecasting API: scraper job ' + sId + ' created')
         else:
             ec.deleteKafkaTopic(topic)
@@ -295,28 +316,61 @@ class _Forecasting(Resource):
         log.debug('Forecasting API: Model selected ' + model_forecasting)
         # TODO: connect to AIML
         # download the model form AI/ML platform
-        #logging.info('Forecasting API: model ' + model_forecasting + ' downloaded from AIMLP')
+        # logging.info('Forecasting API: model ' + model_forecasting + ' downloaded from AIMLP')
 
-        fj = ForecastingJob(req_id, nsdid, model_forecasting, metric, il)
-        log.debug('Forecasting API: forecasting job created ' + fj.str())
-        #fj.set_model(1, 1, True, 'trainedModels/lstm11.h5')
-        fj.set_model(1, 1, True, 'trainedModels/lstm11bis.h5')
-        event = Event()
-        t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(req_id, topic)))
-        t.start()
+        instances = instancecheck(ec.createKafkaConsumer(req_id, topic), log, 60)
+        il = len(instances)
+        # single instance case
+        if il == 1:
+            log.debug('Forecasting API: Single instance detected')
+            fj = ForecastingJob(req_id, nsdid, model_forecasting, metric, il, instances[0])
+            log.debug('Forecasting API: forecasting job created ' + fj.str())
+            # fj.set_model(1, 1, True, 'trainedModels/lstm11.h5')
+            fj.set_model(1, 1, True, 'trainedModels/lstm11bis.h5')
+            event = Event()
+            t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(req_id, topic)))
+            t.start()
+            active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event}
+            reqs[str(req_id)] = {'instance_name': instances[0]}
+        # in case of multiple instances
+        else:
+            log.debug("Forecasting API: {} instances detected".format(str(il)))
+            i = 0
+            for instance in instances.sort():
+                if i == 0:
+                    # main instance
+                    fj = ForecastingJob(req_id, nsdid, model_forecasting, metric, il, instance)
+                    log.debug('Forecasting API: Main forecasting job created ' + fj.str())
+                    # fj.set_model(1, 1, True, 'trainedModels/lstm11.h5')
+                    fj.set_model(1, 1, True, 'trainedModels/lstm11bis.h5')
+                    event = Event()
+                    t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(req_id, topic)))
+                    t.start()
+                    active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event, 'subJobs': {}}
+                    i = i + 1
+                else:
+                    fj = ForecastingJob(req_id, nsdid, model_forecasting, metric, il, instance)
+                    log.debug('Forecasting API: sub forecasting job created ' + fj.str())
+                    # fj.set_model(1, 1, True, 'trainedModels/lstm11.h5')
+                    fj.set_model(1, 1, True, 'trainedModels/lstm11bis.h5')
+                    event = Event()
+                    t = Thread(target=fj.run, args=(event, ec.createKafkaConsumer(req_id, topic)))
+                    t.start()
+                    active_jobs[str(req_id)]['subJobs'][instance] = {'thread': t, 'job': fj, 'kill_event': event}
+                    i = i + 1
+
         # create Prometheus job pointing to the exporter
         pId = ec.startPrometheusJob(vnfdid, nsid, 15, req_id)
         if pId is not None:
-            #print("Prometheus job "+ str(pId)+ " started")
+            # print("Prometheus job "+ str(pId)+ " started")
             log.info('Forecasting API: Prometheus job ' + pId + ' created')
         else:
             ec.deleteKafkaTopic(topic)
             ec.stopScraperJob(sId)
             reqs[str(req_id)] = {'isActive': False}
             return "Prometheus job not created aborting", 403
-        print("pj=\""+ str(pId)+ "\"")
-        print("sj=\""+ str(sId)+ "\"")
-        active_jobs[str(req_id)] = {'thread': t, 'job': fj, 'kill_event': event}#, 'trained_model': trainedModel}
+        # print("pj=\""+ str(pId)+ "\"")
+        # print("sj=\""+ str(sId)+ "\"")
         reqs[str(req_id)]['prometheusJob'] = pId
         reqs[str(req_id)]['scraperJob'] = sId
         return str(req_id), 200
@@ -349,11 +403,11 @@ class _ForecastingDeleter(Resource):
             active_jobs.pop(str(job_id))
             pj = reqs[str(job_id)].get('prometheusJob')
             sj = reqs[str(job_id)].get('scraperJob')
-            
+
             # delete Prometheus job pointing to the exporter
             ec.stopPrometheusJob(pj)
             log.info('Forecasting API: deleted Prometheus job')
-            
+
             # delete scraper job and update the reqs model
             ec.stopScraperJob(sj)
             log.info('Forecasting API: deleted scraper job')
@@ -403,40 +457,29 @@ class _ForecastingSetIL(Resource):
             return 'Forecasting job not found', 404
 
 
-#@prometheusApi.route('/metrics/<string:job_id>/<string:vnfd_id>')
+# @prometheusApi.route('/metrics/<string:job_id>/<string:vnfd_id>')
 @prometheusApi.route('/metrics/<string:nsid>/<string:vnfd_id>')
 @prometheusApi.response(200, 'Success')
 @prometheusApi.response(404, 'Not found')
 class _PrometheusExporter(Resource):
     @prometheusApi.doc(description="handling Prometheus connections")
-    #def get(self, job_id, vnfd_id):
+    # def get(self, job_id, vnfd_id):
     def get(self, nsid, vnfd_id):
         global data
         global active_jobs
         global reqs
         global testForecasting
-        #log.info('Prometeheus Exporter: new metric request for job=' + job_id + ' and vnfdid=' + vnfd_id)
         log.info('Prometeheus Exporter: new metric request for nsid=' + nsid + ' and vnfdid=' + vnfd_id)
 
         is_exists = False
-        #for key in active_jobs.keys():
-        #    if key == jobid:
-        #        is_exists = True
-        #        if reqs[str(job_id)].get('vnfdId') == vnfd_id:
-        #            break
         job_id = None
-        #print(nsid)
-        #print(vnfd_id)
         for key in reqs.keys():
-            #print(str(reqs[str(key)].get('nsId')))
-            #print(str(reqs[str(key)].get('vnfdId')))
             if str(reqs[str(key)].get('nsId')) == str(nsid):
-               if str(reqs[str(key)].get('vnfdId')) == str(vnfd_id):
-                   job_id = str(key)
-                   is_exists = True
-                   break
-        #print(job_id)
-        jobid=job_id
+                if str(reqs[str(key)].get('vnfdId')) == str(vnfd_id):
+                    job_id = str(key)
+                    is_exists = True
+                    break
+        jobid = job_id
         if not is_exists:
             log.info("Prometeheus Exporter: nsid/vnfdid {}/{} not found ".format(nsid, vnfd_id))
             return 'Forecasting job not found', 404
@@ -449,79 +492,79 @@ class _PrometheusExporter(Resource):
             value = f.get_forecasting_value(5, 2)
         metric = reqs[str(job_id)].get('performanceMetric')
         if testForecasting == 0:
-           # creating replicas for the average data
-           if "cpu" or "CPU" or "Cpu" in metric:
-              names = f.get_names()
-              #print(names)
-              for instance in names.keys():
-                 for c in range(0, len(names[instance]['cpus'])):
-                    cpu = str(names[instance]['cpus'][c])
-                    mode = str(names[instance]['modes'][c])
-                    timestamp = str(names[instance]['timestamp'][c])
-                    return_data = {
-                        'job': job_id,
-                        'metric': metric,
-                        'name': instance,
-                        'cpu': cpu,
-                        'mode': mode,
-                        'timestamp': round(float(timestamp), 2) + 15.0,
-                        str(metric): value
-                    }
+            # creating replicas for the average data
+            if "cpu" or "CPU" or "Cpu" in metric:
+                names = f.get_names()
+                # print(names)
+                for instance in names.keys():
+                    for c in range(0, len(names[instance]['cpus'])):
+                        cpu = str(names[instance]['cpus'][c])
+                        mode = str(names[instance]['modes'][c])
+                        timestamp = str(names[instance]['timestamp'][c])
+                        return_data = {
+                            'job': job_id,
+                            'metric': metric,
+                            'name': instance,
+                            'cpu': cpu,
+                            'mode': mode,
+                            'timestamp': round(float(timestamp), 2) + 15.0,
+                            str(metric): value
+                        }
 
-                    return_data_str = json.dumps(return_data)
-                    json_obj2 = json.loads(return_data_str)
-                    if json_obj2['job'] not in data.keys():
-                        data[jobid] = multiprocessing.Queue()
-                    #print(return_data_str)
-                    data[jobid].put(json_obj2)
-                    # print("push")
-                    # print(data[id].qsize())
+                        return_data_str = json.dumps(return_data)
+                        json_obj2 = json.loads(return_data_str)
+                        if json_obj2['job'] not in data.keys():
+                            data[jobid] = multiprocessing.Queue()
+                        # print(return_data_str)
+                        data[jobid].put(json_obj2)
+                        # print("push")
+                        # print(data[id].qsize())
         else:
-           if "cpu" or "CPU" or "Cpu" in metric:
-              names = f.get_names()
-              #print(names)
-              for instance in names.keys():
-                 for c in range(0, len(names[instance]['cpus'])):
-                    cpu = str(names[instance]['cpus'][c])
-                    mode = str(names[instance]['modes'][c])
-                    timestamp = str(names[instance]['timestamp'][c])
-                    curr_val = names[instance]['values'][c]
-                    return_data = {
-                        'job': job_id,
-                        'metric': metric,
-                        'name': instance,
-                        'cpu': cpu,
-                        'mode': mode,
-                        'timestamp': round(float(timestamp), 2) + 15.0,
-                        'input': "no",
-                        str(metric): value
-                    }
+            if "cpu" or "CPU" or "Cpu" in metric:
+                names = f.get_names()
+                # print(names)
+                for instance in names.keys():
+                    for c in range(0, len(names[instance]['cpus'])):
+                        cpu = str(names[instance]['cpus'][c])
+                        mode = str(names[instance]['modes'][c])
+                        timestamp = str(names[instance]['timestamp'][c])
+                        curr_val = names[instance]['values'][c]
+                        return_data = {
+                            'job': job_id,
+                            'metric': metric,
+                            'name': instance,
+                            'cpu': cpu,
+                            'mode': mode,
+                            'timestamp': round(float(timestamp), 2) + 15.0,
+                            'input': "no",
+                            str(metric): value
+                        }
 
-                    return_data_str = json.dumps(return_data)
-                    json_obj2 = json.loads(return_data_str)
-                    if json_obj2['job'] not in data.keys():
-                        data[jobid] = multiprocessing.Queue()
-                    #print(return_data_str)
-                    data[jobid].put(json_obj2)
-                    return_data = {
-                        'job': job_id,
-                        'metric': metric,
-                        'name': instance,
-                        'cpu': cpu,
-                        'mode': mode,
-                        'timestamp': round(float(timestamp), 2) + 15.0,
-                        'input': "yes",
-                        str(metric): round(float(curr_val), 2)
-                    }
+                        return_data_str = json.dumps(return_data)
+                        json_obj2 = json.loads(return_data_str)
+                        if json_obj2['job'] not in data.keys():
+                            data[jobid] = multiprocessing.Queue()
+                        # print(return_data_str)
+                        data[jobid].put(json_obj2)
+                        return_data = {
+                            'job': job_id,
+                            'metric': metric,
+                            'name': instance,
+                            'cpu': cpu,
+                            'mode': mode,
+                            'timestamp': round(float(timestamp), 2) + 15.0,
+                            'input': "yes",
+                            str(metric): round(float(curr_val), 2)
+                        }
 
-                    return_data_str = json.dumps(return_data)
-                    json_obj2 = json.loads(return_data_str)
-                    if json_obj2['job'] not in data.keys():
-                        data[jobid] = multiprocessing.Queue()
-                    #print(return_data_str)
-                    data[jobid].put(json_obj2)
-                    # print("push")
-                    # print(data[id].qsize())
+                        return_data_str = json.dumps(return_data)
+                        json_obj2 = json.loads(return_data_str)
+                        if json_obj2['job'] not in data.keys():
+                            data[jobid] = multiprocessing.Queue()
+                        # print(return_data_str)
+                        data[jobid].put(json_obj2)
+                        # print("push")
+                        # print(data[id].qsize())
 
         time.sleep(0.1)
         cc.set_parameters(jobid)
@@ -537,13 +580,13 @@ if __name__ == '__main__':
     config.read('config.conf')
     log.debug('Forecasting API: Configuration file parsed and read')
 
-    #ec = ExternalConnections('config.conf', logging)
+    # ec = ExternalConnections('config.conf', logging)
     ec = ExternalConnections('config.conf')
     log.debug('Forecasting API: External connection module initialized')
     if 'local' in config:
         ip = config['local']['localIP']
         port = config['local']['localPort']
-        testForecasting = config['local']['testingEnabled']
+        testForecasting = int(config['local']['testingEnabled'])
     else:
         port = PORT
     if 'AIML' in config:

@@ -27,6 +27,7 @@ import numpy as np
 from algorithms.lstmCpu import lstmcpu
 
 import logging
+import copy
 
 log = logging.getLogger("Forecaster")
 
@@ -37,7 +38,7 @@ class ForecastingJob:
     Each message mast be added with the add data function.
     https://github.com/confluentinc/confluent-kafka-python
     """
-    def __init__(self, id, data_type, model, metric, il, steps=None):
+    def __init__(self, id, data_type, model, metric, il, instance_name, steps=None):
         self.model = model
         self.job_id = id
         self.nstype = data_type
@@ -49,6 +50,7 @@ class ForecastingJob:
         else:
             self.time_steps = steps
         self.batch_size = 10
+        self.instance_name = instance_name
         if self.model == "Test":
             self.data = np.arange(self.time_steps).reshape(self.time_steps, 1)
         else:
@@ -56,8 +58,9 @@ class ForecastingJob:
         self.trained_model = None
         self.lstm_data = None
         self.il = il
+        self.datalist = []
 
-    def data_parser(self, json_data):
+    def data_parser(self, json_data, avg):
         loaded_json = json.loads(json_data)
         log.debug("Forecasting Job: received data: \n{}".format(loaded_json))
         names = {}
@@ -89,35 +92,48 @@ class ForecastingJob:
                     mtype = element['type_message']
                     if mtype == "metric":
                         instance = element['metric']['instance']
-                        cpu = element['metric']['cpu']
-                        mode = element['metric']['mode']
-                        nsid = element['metric']['nsId']
-                        vnfdif = element['metric']['vnfdId']
-                        t = element['value'][0]
-                        val = element['value'][1]
-                        if instance not in names.keys():
-                            names[instance] = {}
-                            names[instance]['cpus'] = []
-                            names[instance]['modes'] = []
-                            names[instance]['values'] = []
-                            names[instance]['timestamp'] = []
-                        names[instance]['cpus'].append(cpu)
-                        names[instance]['modes'].append(mode)
-                        names[instance]['values'].append(round(float(val),2))
-                        names[instance]['timestamp'].append(t)
-                self.names = names
-                avg_cpu = 0
-                t = None
-                for key in names.keys():
-                    avg_cpu = sum(names[key]['values'])/len(names[key]['values'])
-                    if t is None:
-                        t = names[key]['timestamp'][0]
-                string = str(t) + ";" + str(self.il) + ";" +str(avg_cpu)+ ";48;1"
-                #print("csv data: {}".format(string))
-                self.lstm_data = StringIO("col1;col2;col3;col4;col5\n"+string+"\n")
+                        if instance == self.instance_name:
+                            cpu = element['metric']['cpu']
+                            mode = element['metric']['mode']
+                            #nsid = element['metric']['nsId']
+                            #vnfdif = element['metric']['vnfdId']
+                            t = element['value'][0]
+                            val = element['value'][1]
+                            if instance not in names.keys():
+                                names[instance] = {}
+                                names[instance]['cpus'] = []
+                                names[instance]['modes'] = []
+                                names[instance]['values'] = []
+                                names[instance]['timestamp'] = []
+                            names[instance]['cpus'].append(cpu)
+                            names[instance]['modes'].append(mode)
+                            names[instance]['values'].append(round(float(val), 2))
+                            names[instance]['timestamp'].append(t)
+                    self.names = names
+                    avg_cpu = 0
+                    t = None
+                    #TODO: avoid the average
+                    if avg:
+                        for key in names.keys():
+                            avg_cpu = sum(names[key]['values'])/len(names[key]['values'])
+                            if t is None:
+                                t = names[key]['timestamp'][0]
+                        string = str(t) + ";" + str(self.il) + ";" +str(avg_cpu)+ ";48;1"
+                        #print("csv data: {}".format(string))
+                        self.lstm_data = StringIO(string+"\n")
+                        #self.lstm_data = StringIO("col1;col2;col3;col4;col5\n" + string + "\n")
 
-                #1605184144.25,1,81.48,96.06,1
-
+                        self.datalist.append(StringIO(string + "\n"))
+                        if len(self.datalist) > 100:
+                            del self.datalist[0]
+                    else:
+                        string = ""
+                        for key in names.keys():
+                            t = names[key]['timestamp'][0]
+                            string = str(t)
+                            for c in range(0, len(names[key]['cpus'])):
+                              string = string + ";" + str(names[instance]['values'][c])
+                        self.datalist.append(StringIO(string + "\n"))
         else:
             print("Forecasting Job: model not supported")
 
@@ -178,7 +194,11 @@ class ForecastingJob:
         if self.model == "Test":
             return round(float(np.sum(self.data.astype(np.float)) / len(self.data)), 2)
         elif self.model == "lstm":
-            df = pd.read_csv(self.lstm_data, sep=";")
+            data1 = copy.deepcopy(self.datalist)
+            datax = data1[-1]
+            log.debug("Last data in the list is: {}".format(datax.getvalue()))
+            #df = pd.read_csv(self.lstm_data, sep=";")
+            df = pd.read_csv(datax, sep=";")
             ds = df.values
             scaler = MinMaxScaler(feature_range=(0, 1))
             dsx = scaler.fit_transform(ds)
